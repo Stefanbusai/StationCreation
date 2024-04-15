@@ -1,0 +1,8 @@
+<types>
+  <!--com.airedale.StationCreation-->
+  <type class="com.airedale.StationCreation.BTreePrint" name="TreePrint"/>
+  <type class="com.airedale.StationCreation.BSlotsPrinter" name="SlotsPrinter"/>
+  <type class="com.airedale.StationCreation.BStationReader" name="StationReader"/>
+  <type class="com.airedale.StationCreation.BStationWriter" name="StationWriter"/>
+  <type class="com.airedale.StationCreation.BRecursiveTreePrint" name="RecursiveTreePrint"/>
+</types>

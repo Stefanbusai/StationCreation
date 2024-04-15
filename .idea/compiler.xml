@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <option name="niagara.module.root" value="C:\Users\sstoian\Documents\Niagara_N4\Development\SuperStationCreationAutomation\StationCreation\StationCreation-rt" />
+        <option name="niagara.test.roots" value="srcTest=java" />
+        <processorPath useClasspath="false">
+          <entry name="$PROJECT_DIR$/../../../../../../../niagara/niagara-4.13.2.18/bin/ext/nre.jar" />
+        </processorPath>
+        <module name="StationCreation.StationCreation-rt.moduleTest" />
+        <module name="StationCreation.StationCreation-rt.main" />
+      </profile>
+    </annotationProcessing>
+  </component>
+</project>
