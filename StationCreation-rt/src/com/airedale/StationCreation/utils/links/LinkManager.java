@@ -101,7 +101,7 @@ public class LinkManager {
             }
 
             String sourceORDString = linkDetails[0];
-            
+
             String sourceSlotName = linkDetails[1];
             String targetORDString = linkDetails[2];
             String targetSlotName = linkDetails[3];
