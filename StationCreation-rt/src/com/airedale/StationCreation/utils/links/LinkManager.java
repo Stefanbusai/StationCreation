@@ -5,10 +5,7 @@ import javafx.util.Pair;
 
 import javax.baja.converters.*;
 import javax.baja.naming.BOrd;
-import javax.baja.status.BStatusBoolean;
-import javax.baja.status.BStatusEnum;
-import javax.baja.status.BStatusNumeric;
-import javax.baja.status.BStatusString;
+import javax.baja.status.*;
 import javax.baja.sys.*;
 import javax.baja.util.BConverter;
 import javax.baja.util.BFormat;
@@ -180,6 +177,7 @@ public class LinkManager {
     }
 
     public void addLink(BLink link, Context cx) {
+
 
         BOrd targetORD = link.getTargetComponent().getSlotPathOrd();
         BOrd sourceORD = link.getSourceComponent().getSlotPathOrd();

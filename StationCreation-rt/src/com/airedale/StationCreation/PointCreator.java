@@ -93,6 +93,7 @@ class PointCreator
                 break;
         }
     }
+
     private void addEnumWritablePoint(String pointName, String pointSlotPath, String pointFacetsString, String pointFallbackString,String wsAnnotationString,  Context cx) {
         BEnumWritable enumWritablePoint = new BEnumWritable();
         addFacetsToPoint(enumWritablePoint, false, false, pointFacetsString);
