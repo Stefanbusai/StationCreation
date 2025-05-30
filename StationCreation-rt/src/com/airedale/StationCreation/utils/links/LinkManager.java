@@ -25,12 +25,11 @@ public class LinkManager {
 
 
     public List<BLink> findAllLinks(Context cx) {
-        logger.info("Finding all links");
         BObject base = Sys.getStation();
         BOrd baseORD = BOrd.make("slot:/");
         BComponent rootComponent = (BComponent) baseORD.resolve(base).get();
         readLinksInThisAndAllSubComponents(rootComponent, cx);
-        logger.info("Found: " + links.size()  + " links");
+        logger.info("Links: " + links.size());
         return links;
     }
     private void readLinksInThisAndAllSubComponents(BComponent root, Context cx){
@@ -44,26 +43,26 @@ public class LinkManager {
     private void readLinksFromComponent(BComponent component, Context cx){
 
         BLink[] linksFromComponent = component.getLinks();
-        if(linksFromComponent.length > 0) {
-            logger.info(linksFromComponent.length + " links found in " + component.getSlotPath().toString());
-        }
+//        if(linksFromComponent.length > 0) {
+//            logger.info(linksFromComponent.length + " links found in " + component.getSlotPath().toString());
+//        }
         for (BLink link : linksFromComponent) {
             links.add(link);
-            logger.info(links.size() + " total links so far");
+//            logger.info(links.size() + " total links so far");
         }
     }
 
     public static void writeLinksToCSVFile(List<BLink> links, String fileName, Context cx) {
-        StringBuilder  CSVToPrint = new StringBuilder();
-        //build headers
-        String COMMA = ",";
-        CSVToPrint.append("SourceORD").append(COMMA);
-        CSVToPrint.append("SourceSlot").append(COMMA);
-        CSVToPrint.append("TargetORD").append(COMMA);
-        CSVToPrint.append("TargetSlot").append("\n");
+                StringBuilder  CSVToPrint = new StringBuilder();
+                //build headers
+                String COMMA = ",";
+                CSVToPrint.append("SourceORD").append(COMMA);
+                CSVToPrint.append("SourceSlot").append(COMMA);
+                CSVToPrint.append("TargetORD").append(COMMA);
+                CSVToPrint.append("TargetSlot").append("\n");
 
-        for (BLink link : links) {
-            String sourceORDString = link.getSourceComponent().getSlotPathOrd().encodeToString();
+                for (BLink link : links) {
+                    String sourceORDString = link.getSourceComponent().getSlotPathOrd().encodeToString();
             String sourceSlotString = link.getSourceSlotName();
             String targetORDString = link.getTargetComponent().getSlotPathOrd().encodeToString();
             String targetSlotString = link.getTargetSlotName();
@@ -83,15 +82,13 @@ public class LinkManager {
         BOrd linksFileOrd = BOrd.make("file:^" + fileName);
         List<String> linesFromFileAsList = readLinesFromFileAsArrayList(linksFileOrd);
         linesFromFileAsList.remove(0);
-        logger.info("The file contains " + linesFromFileAsList.size() + " links:");
-        for (String line : linesFromFileAsList) {
-            logger.info("    " + line);
-        }
+        logger.info("The file contains " + linesFromFileAsList.size() + " links");
+
         ArrayList<BLink> linksToReturn = new ArrayList<BLink>();
 
         BObject base = Sys.getStation();
         for (String line : linesFromFileAsList) {
-            logger.info("Processing links line: " + line);
+//            logger.info("Processing links line: " + line);
             String[] linkDetails = line.split(",");
             if (linkDetails.length != 4) {
                 continue;
@@ -183,7 +180,7 @@ public class LinkManager {
         BOrd sourceORD = link.getSourceComponent().getSlotPathOrd();
         String sourceSlotName = link.getSourceSlotName();
         String linkTargetSlotName = link.getTargetSlotName();
-        logger.info("Adding link from " + sourceSlotName + " to " + linkTargetSlotName);
+//        logger.info("Adding link from " + sourceSlotName + " to " + linkTargetSlotName);
 
         BComponent target =  link.getTargetComponent();
         BComponent source = link.getSourceComponent();

@@ -4,6 +4,7 @@ import com.airedale.StationCreation.wrappers.PointWrapper;
 
 import javax.baja.bacnet.point.BBacnetProxyExt;
 import javax.baja.control.BControlPoint;
+import javax.baja.util.BWsAnnotation;
 import java.io.IOException;
 import java.util.logging.Logger;
 
@@ -33,6 +34,9 @@ public class BacnetPointWrapper extends PointWrapper {
         determinePointType();
 
         determineExtensions();
+        determineWsAnnotation();
+        determineSubFolder();
+
     }
 
     private static final Logger logger = Logger.getLogger("BacnetDeviceWrapper");

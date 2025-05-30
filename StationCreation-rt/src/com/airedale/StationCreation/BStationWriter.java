@@ -3,12 +3,15 @@ package com.airedale.StationCreation;
 
 import com.airedale.StationCreation.utils.FileUtils;
 import com.airedale.StationCreation.utils.links.LinkManager;
+import com.airedale.StationCreation.wrappers.KitControlCreator;
+import com.airedale.StationCreation.wrappers.TextBoxCreator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tridium.modbusAsync.BModbusAsyncDevice;
 import com.tridium.modbusAsync.BModbusAsyncNetwork;
 import com.tridium.modbusCore.BModbusDevice;
+import com.tridium.modbusCore.client.point.BModbusClientPointFolder;
 import com.tridium.modbusTcp.BModbusTcpDevice;
 import com.tridium.modbusTcp.BModbusTcpNetwork;
 
@@ -20,6 +23,7 @@ import javax.baja.bacnet.datatypes.BBacnetAddress;
 import javax.baja.bacnet.datatypes.BBacnetObjectIdentifier;
 import javax.baja.bacnet.datatypes.BBacnetOctetString;
 import javax.baja.bacnet.export.BLocalBacnetDevice;
+import javax.baja.bacnet.point.BBacnetPointFolder;
 import javax.baja.control.BControlPoint;
 import javax.baja.driver.BDriverContainer;
 import javax.baja.driver.point.BPointDeviceExt;
@@ -29,9 +33,7 @@ import javax.baja.nre.annotations.NiagaraType;
 import javax.baja.serial.*;
 import javax.baja.sys.*;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,6 +81,8 @@ public class BStationWriter extends BComponent
   private static final String NETWORKS_FILE = "StationRead/networks.json";
   private static final String NULL_PROXY_POINTS_FILE = "StationRead/nullProxyPoints.csv";
   private static final String LINKS_FILE = "StationRead/links.csv";
+  private static final String TEXT_BOX_POINTS_FILE = "StationRead/textBoxes.csv";
+  private static final String KIT_CONTROL_FILE = "StationRead/kitControlPoints.csv";
   private BDriverContainer driverContainer;
   private final LinkManager linkManager = new LinkManager();
 
@@ -88,30 +92,68 @@ public class BStationWriter extends BComponent
     getDriverContainer(cx);
     getJsonNodeFromFile();
     if (jsonNodeFromFile == null) {
-        logger.severe(NETWORKS_FILE + " file is empty. Aborting");
-        return;
+        logger.severe(NETWORKS_FILE + " file is empty");
     }
     createAndAddNetworks(cx);
     addNullProxyControlPoints(cx);
+    addTextBoxes(cx);
+    addKitControlPoints(cx);
     addLinks(cx);
   }
 
-  private void addLinks(Context cx) {
+  private void addKitControlPoints(Context cx) throws IOException {
+    try {
+      BOrd kitControlListFileOrd = BOrd.make("file:^" + KIT_CONTROL_FILE);
+      List<String> kitControlPointsList = FileUtils.readLinesFromFileAsArrayList(kitControlListFileOrd);
+      kitControlPointsList.remove(0);
+      KitControlCreator kitControlCreator = new KitControlCreator();
+      for (String kitControlPointLine : kitControlPointsList) {
+        kitControlCreator.addKitControlPointFromCSVLine(kitControlPointLine, cx);
+      }
+    }
+    catch (Exception ex){
+      logger.warning("No file called "+ KIT_CONTROL_FILE);
+    }
+  }
 
-    List<BLink> links = linkManager.readAndCreateLinksFromCSVFile(LINKS_FILE, cx);
-//    linkManager.addLinks(links, cx);
+  private void addTextBoxes(Context cx) {
+    try {
+      BOrd textBoxesListFileOrd = BOrd.make("file:^" + TEXT_BOX_POINTS_FILE);
+      List<String> textBoxesList = FileUtils.readLinesFromFileAsArrayList(textBoxesListFileOrd);
+      textBoxesList.remove(0);
+      TextBoxCreator textBoxCreator = new TextBoxCreator();
+      for (String textBoxString : textBoxesList) {
+        textBoxCreator.addTextBoxFromCSVLine(textBoxString, cx);
+      }
+    }
+    catch (Exception ex){
+      logger.warning("No file called "+ TEXT_BOX_POINTS_FILE);
+    }
+  }
+
+  private void addLinks(Context cx) {
+    try {
+      List<BLink> links = linkManager.readAndCreateLinksFromCSVFile(LINKS_FILE, cx);
+    }
+    catch (Exception ex){
+      logger.warning("No file called "+ LINKS_FILE);
+    }
   }
 
   private void addNullProxyControlPoints(Context cx) {
-    BOrd nullProxyControlPointsListFileOrd = BOrd.make("file:^" + NULL_PROXY_POINTS_FILE);
-    // get the points list from the file
-    List<String> pointsList = FileUtils.readLinesFromFileAsArrayList(nullProxyControlPointsListFileOrd);
-    pointsList.remove(0);
-    PointCreator pointCreator = new PointCreator();
-    for (String point : pointsList) {
-      pointCreator.addNullProxyControlPointFromCSVLine(point, cx);
+    try {
+      BOrd nullProxyControlPointsListFileOrd = BOrd.make("file:^" + NULL_PROXY_POINTS_FILE);
+      // get the points list from the file
+      List<String> pointsList = FileUtils.readLinesFromFileAsArrayList(nullProxyControlPointsListFileOrd);
+      pointsList.remove(0);
+      PointCreator pointCreator = new PointCreator();
+      for (String point : pointsList) {
+        pointCreator.addNullProxyControlPointFromCSVLine(point, cx);
+      }
     }
-
+    catch (Exception ex){
+      logger.warning("No file called "+ NULL_PROXY_POINTS_FILE);
+    }
   }
 
   private void createAndAddNetworks(Context cx) {
@@ -127,7 +169,7 @@ public class BStationWriter extends BComponent
       addNetwork(driverContainer, bacnetNetwork, bacnetNode.get("networkName").textValue(), cx);
     }
     catch (IndexOutOfBoundsException e) {
-        logger.warning("No Bacnet network found in " + NETWORKS_FILE);
+//        logger.warning("No Bacnet network found in " + NETWORKS_FILE);
         return;
     }
   }
@@ -169,12 +211,11 @@ public class BStationWriter extends BComponent
   }
 
   private void addNetwork(BDriverContainer driverContainer, BBacnetNetwork network, String name, Context cx) {
-    if (!networkExists(driverContainer, name)) {
-      driverContainer.add(name, network, cx);
-      logger.info("Added BACnet network: " + name);
-    } else {
-      logger.warning("BACnet network already exists: " + name);
+    if (networkExists(driverContainer, name)) {
+      driverContainer.remove(name);
     }
+    driverContainer.add(name, network, cx);
+    logger.info("Added BACnet network: " + name);
   }
 
   private boolean networkExists(BDriverContainer driverContainer, String name) {
@@ -250,6 +291,12 @@ public class BStationWriter extends BComponent
       logger.info("Processing pointCsvLine: " + pointCsvLine);
       BControlPoint controlPoint = pointCreator.createProxyPointFromCSVLine(pointCsvLine, "modbus");
       String pointName = pointCreator.getPointNameFromCSVLine(pointCsvLine);
+      BModbusClientPointFolder bacnetPointFolder = createModbusSubFoldersIfTheyDoNotExist(pointCsvLine,modbusTcpDevice,cx);
+      if (bacnetPointFolder == null) {
+        pointsFolder.add(pointName, controlPoint, cx);
+      } else {
+        bacnetPointFolder.add(pointName, controlPoint, cx);
+      }
       pointsFolder.add(pointName, controlPoint, cx);
     }
     return modbusTcpDevice;
@@ -450,14 +497,103 @@ public class BStationWriter extends BComponent
       if ((pointCsvLine == null)||(pointCsvLine.equals(""))) {
         continue;
       }
-      // log the pointCsvLine being processed
-      logger.finest("Processing pointCsvLine: " + pointCsvLine);
+
       BControlPoint controlPoint = pointCreator.createProxyPointFromCSVLine(pointCsvLine, "bacnet");
       String pointName = pointCreator.getPointNameFromCSVLine(pointCsvLine);
-      pointsFolder.add(pointName, controlPoint, cx);
+      BBacnetPointFolder bacnetPointFolder = createBacnetSubFoldersIfTheyDoNotExist(pointCsvLine,bacnetDevice,cx);
+      if (bacnetPointFolder == null) {
+        pointsFolder.add(pointName, controlPoint, cx);
+      } else {
+        bacnetPointFolder.add(pointName, controlPoint, cx);
+      }
     }
     return bacnetDevice;
   }
+
+  /**
+   * Ensures that the folder path exists under the given parent.
+   * If a folder in the path doesn't exist, it is created.
+   *
+   * @param bacnetDevice The starting bacnet device to search in
+   * @param pointCsvLine The line out of the points list containing the subfolder path like "Folder1/Folder2/Folder3/"
+   * @return The deepest BBacnetPointFolder in the path
+   */
+  private BBacnetPointFolder createBacnetSubFoldersIfTheyDoNotExist(String pointCsvLine, BBacnetDevice bacnetDevice, Context cx) {
+    // extract the subfolder String from the CSV line
+    String[] pointDetails = pointCsvLine.split(",");
+    String pointName = pointDetails[0];
+    String subFolders = pointDetails[20];
+    if (Objects.equals(subFolders, "-")){
+      return null;
+    }
+    String[] folders = subFolders.split("/");
+      BComponent current = bacnetDevice.getPoints();
+    for (String folderName : folders) {
+      if (folderName.trim().isEmpty()) {
+        continue; // skip empty segments
+      }
+      BComponent next = Arrays.stream(current.getChildComponents())
+              .filter(child -> folderName.equals(child.getName()) && child instanceof BBacnetPointFolder)
+              .findFirst()
+              .orElse(null);
+      if (next == null) {
+        // Folder does not exist, so create it
+        BBacnetPointFolder newFolder = new BBacnetPointFolder();
+        current.add(folderName, newFolder);
+        current = newFolder;
+      } else if (next instanceof BBacnetPointFolder) {
+        current = next;
+      } else {
+        throw new IllegalStateException("Component with name '" + folderName + "' exists but is not a BBacnetPointFolder.");
+      }
+    }
+
+    return (BBacnetPointFolder) current;
+  }
+
+  /**
+   * Ensures that the folder path exists under the given parent.
+   * If a folder in the path doesn't exist, it is created.
+   *
+   * @param modbusDevice The starting modbus device to search in
+   * @param pointCsvLine The line out of the points list containing the subfolder path like "Folder1/Folder2/Folder3/"
+   * @return The deepest BBacnetPointFolder in the path
+   */
+  private BModbusClientPointFolder createModbusSubFoldersIfTheyDoNotExist(String pointCsvLine, BModbusDevice modbusDevice, Context cx) {
+    // extract the subfolder String from the CSV line
+    String[] pointDetails = pointCsvLine.split(",");
+    String pointName = pointDetails[0];
+    String subFolders = pointDetails[20];
+    if (Objects.equals(subFolders, "-")){
+      return null;
+    }
+    String[] folders = subFolders.split("/");
+    BComponent current = modbusDevice.getPointDeviceExt();
+    for (String folderName : folders) {
+      if (folderName.trim().isEmpty()) {
+        continue; // skip empty segments
+      }
+      BComponent next = Arrays.stream(current.getChildComponents())
+              .filter(child -> folderName.equals(child.getName()) && child instanceof BModbusClientPointFolder)
+              .findFirst()
+              .orElse(null);
+      if (next == null) {
+        // Folder does not exist, so create it
+        BModbusClientPointFolder newFolder = new BModbusClientPointFolder();
+        current.add(folderName, newFolder);
+        current = newFolder;
+      } else if (next instanceof BModbusClientPointFolder) {
+        current = next;
+      } else {
+        throw new IllegalStateException("Component with name '" + folderName + "' exists but is not a BModbusClientPointFolder.");
+      }
+    }
+
+    return (BModbusClientPointFolder) current;
+  }
+
+
+
 
   private void  getJsonNodeFromFile() throws JsonProcessingException {
     // Read JSON string from file return json node

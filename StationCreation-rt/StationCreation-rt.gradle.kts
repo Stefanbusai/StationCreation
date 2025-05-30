@@ -55,6 +55,7 @@ dependencies {
   api("Tridium:bql-rt")
   api("Tridium:alarm-rt")
   api("Tridium:control-rt")
+  api("Tridium:kitControl-rt")
   api("Tridium:converters-rt")
   api( "Tridium:platform-rt")
   api( "Tridium:bacnet-rt:4.2")

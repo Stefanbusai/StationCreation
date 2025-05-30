@@ -44,6 +44,8 @@ public class ModbusPointWrapper extends PointWrapper  {
         determinePointType();
 
         determineExtensions();
+        determineWsAnnotation();
+        determineSubFolder();
     }
 
 }

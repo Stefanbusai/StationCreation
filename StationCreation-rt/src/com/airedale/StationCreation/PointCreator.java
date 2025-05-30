@@ -21,26 +21,28 @@ import javax.baja.bacnet.point.BBacnetProxyExt;
 import javax.baja.control.*;
 import javax.baja.history.BCapacity;
 import javax.baja.history.BHistoryConfig;
-import javax.baja.history.ext.BBooleanCovHistoryExt;
-import javax.baja.history.ext.BHistoryExt;
-import javax.baja.history.ext.BNumericIntervalHistoryExt;
+import javax.baja.history.ext.*;
 import javax.baja.naming.BOrd;
 import javax.baja.status.*;
 import javax.baja.sys.*;
 import javax.baja.tag.Tag;
 import javax.baja.tag.Tags;
 import javax.baja.units.BUnit;
+import javax.baja.util.BFolder;
 import javax.baja.util.BFormat;
 import javax.baja.util.BWsAnnotation;
+import java.util.Objects;
+import java.util.Scanner;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
-class PointCreator
+public class PointCreator
 {
 
     /**
      * Constructor.
      */
-    PointCreator()
+    protected PointCreator()
     {
 
     }
@@ -54,6 +56,7 @@ class PointCreator
         String[] pointDetails = pointCsvLine.split(",");
         String pointName              = pointDetails[0];
         return pointName;
+
     }
 
     public void addNullProxyControlPointFromCSVLine(String pointCsvLine, Context cx){
@@ -63,13 +66,14 @@ class PointCreator
             return;
         }
         String pointName              = pointDetails[0];
-        String pointSlotPath          = pointDetails[1];
+        String parentSlotPath         = pointDetails[1];
+        String pointSlotPath          = parentSlotPath + "/" + pointName;
         String pointFacetsString      = pointDetails[2];
         String pointTypeString        = pointDetails[3];
         String pointFallbackString    = pointDetails[4];
         String wsAnnotationString     = pointDetails[5];
 
-
+//        createFolderIfItDoesntExist(parentSlotPath);
         switch (pointTypeString){
             case "control:NumericWritable":
                 if (!pointExists(pointSlotPath, cx)) {
@@ -93,6 +97,22 @@ class PointCreator
                 break;
         }
     }
+
+//    private static void createFolderIfItDoesntExist(String parentSlotPath) {
+//        logger.info("createFolderIfItDoesntExist on " + parentSlotPath);
+//        BOrd parentOrd = BOrd.make(parentSlotPath);
+//        BComponent parentComponent =  BOrd.make(parentSlotPath).resolve(Sys.getStation()).getComponent();
+//        logger.info("createFolderIfItDoesntExist on " + parentSlotPath + " of type: " + parentComponent.getType().toString());
+//        if (!Objects.equals(parentComponent.getType().toString(), "baja:Folder") && !Objects.equals(parentComponent.getType().toString(), "baja:Station")) {
+//            logger.info("Looking to add something in " + parentSlotPath + " but folder doesn't exist. Creating folder");
+//            String parentParentSlotPath = ((BComponent) parentComponent.getParent()).getSlotPathOrd().encodeToString();
+//            createFolderIfItDoesntExist(parentParentSlotPath);
+//            BComponent parentParentFolder = BOrd.make(parentParentSlotPath).resolve(Sys.getStation()).getComponent();
+//            BFolder parentFolder = (BFolder) parentComponent;
+//            parentParentFolder.add(parentComponent.getName(), parentFolder);
+//        }
+
+//    }
 
     private void addEnumWritablePoint(String pointName, String pointSlotPath, String pointFacetsString, String pointFallbackString,String wsAnnotationString,  Context cx) {
         BEnumWritable enumWritablePoint = new BEnumWritable();
@@ -141,7 +161,7 @@ class PointCreator
         addPoint(numericWritablePoint, pointName, pointSlotPath, cx );
     }
 
-    private BControlPoint addWsAnnotationToControlPoint(String wsAnnotationString, BControlPoint currentPoint) {
+    protected BControlPoint addWsAnnotationToControlPoint(String wsAnnotationString, BControlPoint currentPoint) {
         String[] wsAnnotationStringArray = wsAnnotationString.split(":");
         if (wsAnnotationStringArray.length == 3){
             int wsAnnotation_p = Integer.parseInt(wsAnnotationStringArray[0]);
@@ -152,14 +172,16 @@ class PointCreator
         return currentPoint;
     }
 
-    private static void addPoint(BControlPoint booleanWritablePoint, String pointName, String pointSlotPath, Context cx) {
+
+
+    protected static void addPoint(BControlPoint booleanWritablePoint, String pointName, String pointSlotPath, Context cx) {
         BOrd pointOrd = BOrd.make(pointSlotPath);
         BOrd parentOrd = pointOrd.getParent();
         BComponent parent = (BComponent) parentOrd.get(Sys.getStation(), cx);
         parent.add(pointName, booleanWritablePoint);
     }
     
-    private boolean pointExists(String pointSlotPath, Context cx) {
+    protected boolean pointExists(String pointSlotPath, Context cx) {
         try{
             BOrd pointOrd = BOrd.make(pointSlotPath);
             BControlPoint controlPoint = (BControlPoint) pointOrd.get(Sys.getStation(), cx);
@@ -191,13 +213,34 @@ class PointCreator
         String historyNameString      = pointDetails[13];
         String historyIntervalString  = pointDetails[14];
         String historyCapacityString  = pointDetails[15];
+        String hasPointExportTagString      = pointDetails[16];
+        String pointExportTagSlotPath = pointDetails[17];
+        String hasHistoryExportTagString    = pointDetails[18];
+        String wsAnnotationString    = pointDetails[19];
+        String subFolder = pointDetails[20];
+
         boolean isNumeric   = pointTypeString.equalsIgnoreCase("numeric");
         boolean isBoolean   = pointTypeString.equalsIgnoreCase("boolean");
         boolean isWritable  = writableString.equalsIgnoreCase("true");
         boolean hasAlarm    = hasAlarmString.equalsIgnoreCase("true");
         boolean hasHistory  = hasHistoryString.equalsIgnoreCase("true");
-        int historyIntervalMinutes = historyIntervalString.equals("-") ? 0 : Integer.parseInt(historyIntervalString);
-        int historyCapacity = historyCapacityString.equals("-") ? 500 : Integer.parseInt(historyCapacityString);
+        boolean hasPointExportTag  = hasPointExportTagString.equalsIgnoreCase("true");
+        boolean hasHistoryExportTag  = hasHistoryExportTagString.equalsIgnoreCase("true");
+
+        int historyIntervalMinutes = 0;
+        boolean hasCOVHistory = false;
+        if (historyIntervalString.equals("cov")){
+            hasCOVHistory = true;
+        } else if (isInteger(historyIntervalString)) {
+            historyIntervalMinutes = Integer.parseInt(historyIntervalString);
+        }
+        // TODO fix the history capacity writing
+        int historyCapacity = 500;
+        if (isInteger(historyCapacityString)){
+            historyCapacity = Integer.parseInt(historyCapacityString);
+        }
+
+
 
         BControlPoint point;
 
@@ -220,20 +263,37 @@ class PointCreator
 
         addProxyExtentionToPoint(point, isBacnet, isModbus, pointAddresString, isNumeric, isBoolean, dataTypeString);
         if (hasHistory) {
-            addHistoryExtensionToPoint(point, isNumeric, isBoolean, historyIntervalMinutes, historyNameString, historyCapacity);
+            addHistoryExtensionToPoint(point, isNumeric, isBoolean,hasCOVHistory, historyIntervalMinutes, historyNameString, historyCapacity,hasHistoryExportTag);
         }
         if (hasAlarm) {
             addAlarmExtensionToPoint(point, isNumeric, isBoolean, alarmNameString, alarmClassString, alarmHyperlinkORD);
         }
-
+        if (hasPointExportTag) {
+            addExportTag(point, pointExportTagSlotPath);
+        }
+        addWsAnnotationToControlPoint(wsAnnotationString,point);
 
         return point;
+    }
+
+    private void addExportTag(BControlPoint point, String pointExportTagSlotPath) {
+        BPointTag pointTag = new BPointTag();
+        // TODO work out how to read supervisor station name
+//        pointTag.setSupervisorStation();
+        try {
+            pointTag.setStationSlotPath(BOrd.make(pointExportTagSlotPath));
+        }
+        catch (Exception ex){
+            logger.info("Exception setting station slot path for pointTag: "+ pointExportTagSlotPath + "point Name: " + point.getName());
+        }
+        point.add("pointTag", pointTag);
+
     }
 
     /**
      * Add facets to the specified point.
      */
-    private void addFacetsToPoint(BControlPoint point,
+    protected void addFacetsToPoint(BControlPoint point,
                                   boolean isNumeric,
                                   boolean isBoolean,
                                   String facetsStr)
@@ -459,32 +519,39 @@ class PointCreator
     /**
      * Add a history extension to the specified point.
      */
-    void addHistoryExtensionToPoint(BControlPoint point, boolean isNumeric, boolean isBoolean, int historyIntervalMinutes, String historySourceName, int historyCapacity)
+    void addHistoryExtensionToPoint(BControlPoint point, boolean isNumeric, boolean isBoolean,boolean hasCOVHistory, int historyIntervalMinutes, String historySourceName, int historyCapacity, boolean hasHistoryExportExt)
     {
         BHistoryExt historyExt = null;
         String historyExtensionName = null;
 
         if (isBoolean)
         {
-            historyExt = new BBooleanCovHistoryExt();
-
-            historyExtensionName = "BooleanCov";
+            if (hasCOVHistory) {
+                historyExt = new BBooleanCovHistoryExt();
+                historyExtensionName = "BooleanCov_"+ historyCapacity + "rec";
+            } else {
+                historyExt = new BBooleanIntervalHistoryExt();
+                if (historyIntervalMinutes > 0) {
+                    BBooleanIntervalHistoryExt booleanIntervalHistoryExt = (BBooleanIntervalHistoryExt) historyExt;
+                    booleanIntervalHistoryExt.setInterval(BRelTime.makeMinutes(historyIntervalMinutes));
+                }
+                historyExtensionName = "BooleanInterval_" + historyIntervalMinutes + "min_" + historyCapacity + "rec";
+            }
         }
         else if (isNumeric)
         {
-            historyExt = new BNumericIntervalHistoryExt();
-
-            if (historyIntervalMinutes > 0)
-            {
-                BNumericIntervalHistoryExt numericIntervalHistoryExt = (BNumericIntervalHistoryExt) historyExt;
-                numericIntervalHistoryExt.setInterval(BRelTime.makeMinutes(historyIntervalMinutes));
-                BHistoryConfig historyConfig = new BHistoryConfig();
-                BCapacity capacity = BCapacity.makeByRecordCount(historyCapacity);
-                historyConfig.setCapacity(capacity);
-                numericIntervalHistoryExt.setHistoryConfig(historyConfig);
+            if (hasCOVHistory) {
+                historyExt = new BNumericCovHistoryExt();
+                historyExtensionName = "NumericCov_"+ historyCapacity + "rec";
             }
-
-            historyExtensionName = "NumericInterval_" + historyIntervalMinutes + "m_capacity_" + historyCapacity;
+            else {
+                historyExt = new BNumericIntervalHistoryExt();
+                if (historyIntervalMinutes > 0) {
+                    BNumericIntervalHistoryExt numericIntervalHistoryExt = (BNumericIntervalHistoryExt) historyExt;
+                    numericIntervalHistoryExt.setInterval(BRelTime.makeMinutes(historyIntervalMinutes));
+                }
+                historyExtensionName = "NumericInterval_" + historyIntervalMinutes + "min_" + historyCapacity + "rec";
+            }
         }
 
         if (historyExt != null)
@@ -493,7 +560,17 @@ class PointCreator
             {
                 historyExt.setHistoryName(BFormat.make(historySourceName));
             }
-            addHistoryExportTag(historyExt);
+            // add history capacity
+            BHistoryConfig historyConfig = new BHistoryConfig();
+            BCapacity capacity = BCapacity.makeByRecordCount(historyCapacity);
+            historyConfig.setCapacity(capacity);
+            historyExt.setHistoryConfig(historyConfig);
+
+            // add history Export Tag
+            if(hasHistoryExportExt){
+                BHistoryImportTag historyImportTag = new BHistoryImportTag();
+                historyExt.add("historyImportTag", historyImportTag);
+            }
             historyExt.setEnabled(true);
             point.add(historyExtensionName, historyExt);
         }
@@ -534,11 +611,26 @@ class PointCreator
         BPointTag pointTag = new BPointTag();
         point.add("pointTag", pointTag);
     }
+    private static boolean isInteger(String s) {
+        try {
+            Integer.parseInt(s);
+        } catch(NumberFormatException | NullPointerException e) {
+            return false;
+        }
+        // only got here if we didn't return false
+        return true;
+    }
 
-    void addHistoryExportTag ( BHistoryExt historyExt){
-        BHistoryImportTag historyImportTag = new BHistoryImportTag();
-        historyExt.add("historyImportTag", historyImportTag);
-
+    private static boolean isInteger(String s, int radix) {
+        if(s.isEmpty()) return false;
+        for(int i = 0; i < s.length(); i++) {
+            if(i == 0 && s.charAt(i) == '-') {
+                if(s.length() == 1) return false;
+                else continue;
+            }
+            if(Character.digit(s.charAt(i),radix) < 0) return false;
+        }
+        return true;
     }
 
 

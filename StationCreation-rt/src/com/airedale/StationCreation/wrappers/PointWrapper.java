@@ -2,19 +2,25 @@ package com.airedale.StationCreation.wrappers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.tridium.exporttags.tags.BHistoryImportTag;
+import com.tridium.exporttags.tags.BPointTag;
 
 import javax.baja.alarm.ext.BAlarmSourceExt;
 import javax.baja.control.BControlPoint;
 import javax.baja.control.BIWritablePoint;
+import javax.baja.history.ext.BCovHistoryExt;
 import javax.baja.history.ext.BHistoryExt;
 import javax.baja.history.ext.BIntervalHistoryExt;
 import javax.baja.sys.BComponent;
 import javax.baja.sys.BFacets;
+import javax.baja.sys.Sys;
 import javax.baja.sys.Type;
+import javax.baja.util.BWsAnnotation;
 import java.io.IOException;
 
 public class PointWrapper {
 
+    public static final String EMPTY_VALUE = "-";
     protected BControlPoint controlPoint;
 
     protected String pointName;
@@ -26,13 +32,31 @@ public class PointWrapper {
     protected String facets;
     protected String conversion;
     protected Boolean hasAlarm = Boolean.FALSE;
-    protected String alarmName = "-";
-    protected String alarmClass = "-";
-    protected String alarmHyperlink = "-";
+    protected String alarmName = EMPTY_VALUE;
+    protected String alarmClass = EMPTY_VALUE;
+    protected String alarmHyperlink = EMPTY_VALUE;
     protected Boolean hasHistory = Boolean.FALSE;
-    protected String historyName = "-";
-    protected String historyInterval = "-";
-    protected String historyCapacity = "-";
+    protected String historyName = EMPTY_VALUE;
+    protected String historyInterval = EMPTY_VALUE;
+    protected String historyCapacity = EMPTY_VALUE;
+    protected Boolean hasPointExportTag = Boolean.FALSE;
+    protected String exportTagSupervisor = EMPTY_VALUE;
+    protected String pointExportTagSlotPath = EMPTY_VALUE;
+    protected Boolean hasHistoryExportTag = Boolean.FALSE;
+    protected String wsAnnotation = EMPTY_VALUE;
+
+
+
+    protected String subFolder = EMPTY_VALUE;
+
+    public String getWsAnnotation() {
+        return wsAnnotation;
+    }
+    public String getSubFolder() {
+        return subFolder;
+    }
+
+
 
 
 
@@ -73,12 +97,59 @@ public class PointWrapper {
         jsonPointNode.put("historyName", historyName);              //13
         jsonPointNode.put("historyInterval", historyInterval);      //14
         jsonPointNode.put("historyCapacity", historyCapacity);      //15
+        jsonPointNode.put("hasPointExportTag", hasPointExportTag);  //16
+        jsonPointNode.put("pointExportTagSlotPath", pointExportTagSlotPath);  //17
+        jsonPointNode.put("hasHistoryExportTag", hasHistoryExportTag);  //18
+        jsonPointNode.put("wsAnnotation", wsAnnotation);                //19
+        jsonPointNode.put("subFolder", wsAnnotation);                   //20
     }
 
+    protected void determineSubFolder(){
+        String pointSlotPath = controlPoint.getSlotPathOrd().encodeToString();
+        String folderName = extractFolder(pointSlotPath);
+
+        this.subFolder = folderName;
+
+    }
+    private static String extractFolder(String input) {
+        String keyword = "points/";
+        int pointsIndex = input.indexOf(keyword);
+
+        if (pointsIndex == -1) {
+            return EMPTY_VALUE;
+        }
+
+        // Get substring starting after "points/"
+        String pathAfterPoints = input.substring(pointsIndex + keyword.length());
+
+        // Split remaining path into segments
+        String[] segments = pathAfterPoints.split("/");
+
+        // Ensure there are at least two segments after "points"
+        if (segments.length < 2) {
+            return EMPTY_VALUE;
+        }
+
+        // Join all but the last segment with '/'
+        StringBuilder folderPath = new StringBuilder();
+        for (int i = 0; i < segments.length - 1; i++) {
+            folderPath.append(segments[i]).append("/");
+        }
+        return folderPath.toString();
+    }
     protected void determineFacets() throws IOException {
         // facets
         BFacets pointFacets = controlPoint.getFacets();
         this.facets = pointFacets.encodeToString();
+    }
+
+    protected void determineWsAnnotation() throws IOException {
+        BWsAnnotation wsAnnotation =  (BWsAnnotation) controlPoint.get("wsAnnotation");
+        if (wsAnnotation == null) {
+            this.wsAnnotation = EMPTY_VALUE;
+        } else {
+            this.wsAnnotation = wsAnnotation.encodeToString().replace(",", ":");
+        }
     }
 
     protected void determineIfWritable() {
@@ -91,21 +162,35 @@ public class PointWrapper {
         BComponent[] components = controlPoint.getChildComponents();
 
         for (BComponent component : components){
-
+            // search for alarm extensions
             if (component.getType().is(BAlarmSourceExt.TYPE)){
                 hasAlarm = true;
                 alarmName = ((BAlarmSourceExt) component).getSourceName().toString();
                 alarmClass = String.valueOf(((BAlarmSourceExt) component).getAlarmClass());
                 alarmHyperlink = ((BAlarmSourceExt) component).getHyperlinkOrd().encodeToString();
-                break;
             }
+            // search for history extensions
             else if( component.getType().is(BHistoryExt.TYPE)){
                 hasHistory = true;
-                // TODO distinguish interval from COV
                 historyName = ((BHistoryExt) component).getHistoryName().toString();
-                historyInterval = String.valueOf(((BIntervalHistoryExt) component).getInterval().getMinutes());
+                if (component.getType().is(BIntervalHistoryExt.TYPE)) {
+                    historyInterval = String.valueOf(((BIntervalHistoryExt) component).getInterval().getMinutes());
+                } else if (component.getType().is(BCovHistoryExt.TYPE)) {
+                    historyInterval = "cov";
+                }
                 historyCapacity = String.valueOf(((BHistoryExt) component).getHistoryConfig().getCapacity().getMaxRecords());
-                break;
+                //search for history export tags
+                BComponent[] historyExtChildren = component.getChildComponents();
+                for (BComponent historyExtChild : historyExtChildren){
+                    if (historyExtChild.getType().is(BHistoryImportTag.TYPE)){
+                        hasHistoryExportTag = true;
+                    }
+                }
+            }
+            // search for point tag extensions
+            else if (component.getType().is(BPointTag.TYPE)){
+                hasPointExportTag = true;
+                pointExportTagSlotPath = ((BPointTag)component).getStationSlotPath().toString();
             }
         }
     }
@@ -137,7 +222,7 @@ public class PointWrapper {
                 dataType = "enum";
                 break;
             default:
-                dataType = "-";
+                dataType = EMPTY_VALUE;
                 break;
         }
     }
@@ -214,4 +299,11 @@ public class PointWrapper {
     public String getAlarmHyperlink() {
         return alarmHyperlink;
     }
+    public Boolean getHasPointExportTag() {return hasPointExportTag;}
+
+    public String getExportTagSupervisor() {return exportTagSupervisor;}
+
+    public String getPointExportTagSlotPath() {return pointExportTagSlotPath;}
+
+    public Boolean getHasHistoryExportTag() {return hasHistoryExportTag;}
 }

@@ -46,7 +46,12 @@ public class DeviceWrapper
         CSVToPrint.append("HasHistory").append(COMMA);      // 12
         CSVToPrint.append("HistoryName").append(COMMA);     // 13
         CSVToPrint.append("HistoryInterval").append(COMMA); // 14
-        CSVToPrint.append("HistoryCapacity").append("\n");  // 15
+        CSVToPrint.append("HistoryCapacity").append(COMMA);  // 15
+        CSVToPrint.append("HasPointExportTag").append(COMMA);  // 16
+        CSVToPrint.append("PointExportTagSlotPath").append(COMMA);  // 17
+        CSVToPrint.append("HasHistoryExportTag").append(COMMA);  // 18
+        CSVToPrint.append("wsAnnotation").append(COMMA);        // 19
+        CSVToPrint.append("subFolder").append("\n");            // 20
 
         for (BControlPoint point : points) {
             PointWrapper pointWrapper;
@@ -60,22 +65,27 @@ public class DeviceWrapper
             }
 
 
-            CSVToPrint.append(pointWrapper.getPointName()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getPointAddress()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getPointType()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getDataType()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getWritable()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getType()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getFacets()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getConversion()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getHasAlarm()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getAlarmName()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getAlarmClass()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getAlarmHyperlink()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getHasHistory()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getHistoryName()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getHistoryInterval()).append(COMMA);
-            CSVToPrint.append(pointWrapper.getHistoryCapacity()).append("\n");
+            CSVToPrint.append(pointWrapper.getPointName()).append(COMMA); //0
+            CSVToPrint.append(pointWrapper.getPointAddress()).append(COMMA); //1
+            CSVToPrint.append(pointWrapper.getPointType()).append(COMMA); //2
+            CSVToPrint.append(pointWrapper.getDataType()).append(COMMA); //3
+            CSVToPrint.append(pointWrapper.getWritable()).append(COMMA); //4
+            CSVToPrint.append(pointWrapper.getType()).append(COMMA); //5
+            CSVToPrint.append(pointWrapper.getFacets()).append(COMMA); //6
+            CSVToPrint.append(pointWrapper.getConversion()).append(COMMA); //7
+            CSVToPrint.append(pointWrapper.getHasAlarm()).append(COMMA); //8
+            CSVToPrint.append(pointWrapper.getAlarmName()).append(COMMA); //9
+            CSVToPrint.append(pointWrapper.getAlarmClass()).append(COMMA); //10
+            CSVToPrint.append(pointWrapper.getAlarmHyperlink()).append(COMMA); //11
+            CSVToPrint.append(pointWrapper.getHasHistory()).append(COMMA); //12
+            CSVToPrint.append(pointWrapper.getHistoryName()).append(COMMA); //13
+            CSVToPrint.append(pointWrapper.getHistoryInterval()).append(COMMA); //14
+            CSVToPrint.append(pointWrapper.getHistoryCapacity()).append(COMMA); //15
+            CSVToPrint.append(pointWrapper.getHasPointExportTag()).append(COMMA); //16
+            CSVToPrint.append(pointWrapper.getPointExportTagSlotPath()).append(COMMA); //17
+            CSVToPrint.append(pointWrapper.getHasHistoryExportTag()).append(COMMA); //18
+            CSVToPrint.append(pointWrapper.getWsAnnotation()).append(COMMA); //19
+            CSVToPrint.append(pointWrapper.getSubFolder()).append("\n"); //20
         }
         return CSVToPrint.toString();
     }
