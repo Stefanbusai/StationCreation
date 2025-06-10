@@ -42,12 +42,27 @@ import java.util.regex.Pattern;
 @NiagaraAction(
         name = "write"
 )
+@NiagaraAction(
+        name = "writeNetworks"
+)
+@NiagaraAction(
+        name = "writeNullProxyPoints"
+)
+@NiagaraAction(
+        name = "writeTextBoxes"
+)
+@NiagaraAction(
+        name = "writeKitControlPoints"
+)
+@NiagaraAction(
+        name = "writeLinks"
+)
 public class BStationWriter extends BComponent
 {
 //region /*+ ------------ BEGIN BAJA AUTO GENERATED CODE ------------ +*/
 //@formatter:off
-/*@ $com.airedale.StationCreation.BStationWriter(1655491992)1.0$ @*/
-/* Generated Tue Mar 12 14:00:49 GMT 2024 by Slot-o-Matic (c) Tridium, Inc. 2012-2024 */
+/*@ $com.airedale.StationCreation.BStationWriter(327587409)1.0$ @*/
+/* Generated Mon Jun 02 16:05:07 BST 2025 by Slot-o-Matic (c) Tridium, Inc. 2012-2025 */
 
   //region Action "write"
 
@@ -64,6 +79,86 @@ public class BStationWriter extends BComponent
   public void write() { invoke(write, null, null); }
 
   //endregion Action "write"
+
+  //region Action "writeNetworks"
+
+  /**
+   * Slot for the {@code writeNetworks} action.
+   * @see #writeNetworks()
+   */
+  public static final Action writeNetworks = newAction(0, null);
+
+  /**
+   * Invoke the {@code writeNetworks} action.
+   * @see #writeNetworks
+   */
+  public void writeNetworks() { invoke(writeNetworks, null, null); }
+
+  //endregion Action "writeNetworks"
+
+  //region Action "writeNullProxyPoints"
+
+  /**
+   * Slot for the {@code writeNullProxyPoints} action.
+   * @see #writeNullProxyPoints()
+   */
+  public static final Action writeNullProxyPoints = newAction(0, null);
+
+  /**
+   * Invoke the {@code writeNullProxyPoints} action.
+   * @see #writeNullProxyPoints
+   */
+  public void writeNullProxyPoints() { invoke(writeNullProxyPoints, null, null); }
+
+  //endregion Action "writeNullProxyPoints"
+
+  //region Action "writeTextBoxes"
+
+  /**
+   * Slot for the {@code writeTextBoxes} action.
+   * @see #writeTextBoxes()
+   */
+  public static final Action writeTextBoxes = newAction(0, null);
+
+  /**
+   * Invoke the {@code writeTextBoxes} action.
+   * @see #writeTextBoxes
+   */
+  public void writeTextBoxes() { invoke(writeTextBoxes, null, null); }
+
+  //endregion Action "writeTextBoxes"
+
+  //region Action "writeKitControlPoints"
+
+  /**
+   * Slot for the {@code writeKitControlPoints} action.
+   * @see #writeKitControlPoints()
+   */
+  public static final Action writeKitControlPoints = newAction(0, null);
+
+  /**
+   * Invoke the {@code writeKitControlPoints} action.
+   * @see #writeKitControlPoints
+   */
+  public void writeKitControlPoints() { invoke(writeKitControlPoints, null, null); }
+
+  //endregion Action "writeKitControlPoints"
+
+  //region Action "writeLinks"
+
+  /**
+   * Slot for the {@code writeLinks} action.
+   * @see #writeLinks()
+   */
+  public static final Action writeLinks = newAction(0, null);
+
+  /**
+   * Invoke the {@code writeLinks} action.
+   * @see #writeLinks
+   */
+  public void writeLinks() { invoke(writeLinks, null, null); }
+
+  //endregion Action "writeLinks"
 
   //region Type
 
@@ -100,6 +195,24 @@ public class BStationWriter extends BComponent
     addKitControlPoints(cx);
     addLinks(cx);
   }
+  public void doWriteNetworks(Context cx){
+    createAndAddNetworks(cx);
+  }
+
+  public void doWriteNullProxyPoints(Context cx){
+    addNullProxyControlPoints(cx);
+  }
+
+  public void doWriteTextBoxes(Context cx){
+    addTextBoxes(cx);
+  }
+  public void doWriteKitControlPoints(Context cx) throws IOException {
+    addKitControlPoints(cx);
+  }
+  public void doWriteLinks(Context cx){
+    addLinks(cx);
+  }
+
 
   private void addKitControlPoints(Context cx) throws IOException {
     try {

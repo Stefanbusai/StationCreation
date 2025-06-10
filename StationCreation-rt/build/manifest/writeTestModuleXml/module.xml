@@ -13,6 +13,7 @@
   <dependency name="exportTags-rt" vendor="Tridium" vendorVersion="4.13"/>
   <dependency name="fox-rt" vendor="Tridium" vendorVersion="4.13"/>
   <dependency name="history-rt" vendor="Tridium" vendorVersion="4.13"/>
+  <dependency name="kitControl-rt" vendor="Tridium" vendorVersion="4.13"/>
   <dependency name="modbusAsync-rt" vendor="Tridium" vendorVersion="4.13"/>
   <dependency name="modbusCore-rt" vendor="Tridium" vendorVersion="4.13"/>
   <dependency name="modbusTcp-rt" vendor="Tridium" vendorVersion="4.13"/>
