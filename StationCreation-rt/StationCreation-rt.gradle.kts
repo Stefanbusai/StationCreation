@@ -39,6 +39,10 @@ moduleManifest {
   runtimeProfile.set(rt)
 }
 
+bajadocExtension {
+  docletVersion.set("1.0.8")
+}
+
 // See documentation at module://docDeveloper/doc/build.html#dependencies for the supported
 // dependency types
 dependencies {

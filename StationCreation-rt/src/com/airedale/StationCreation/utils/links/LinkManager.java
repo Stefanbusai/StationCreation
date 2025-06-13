@@ -88,39 +88,43 @@ public class LinkManager {
 
         BObject base = Sys.getStation();
         for (String line : linesFromFileAsList) {
+            try
+            {
 //            logger.info("Processing links line: " + line);
-            String[] linkDetails = line.split(",");
-            if (linkDetails.length != 4) {
-                continue;
+                String[] linkDetails = line.split(",");
+                if (linkDetails.length != 4)
+                {
+                    continue;
+                }
+
+                String sourceORDString = linkDetails[0];
+
+                String sourceSlotName = linkDetails[1];
+                String targetORDString = linkDetails[2];
+                String targetSlotName = linkDetails[3];
+
+                BOrd sourceORD = BOrd.make(sourceORDString);
+                BOrd targetORD = BOrd.make(targetORDString);4c1smysqlP455w0rdr00t
+                BComponent source = ((BComponent) sourceORD.resolve(base).get()); // PH: this sometimes resolves to null, causing an NPE
+                BOrd sourceHandle = source.getHandleOrd();
+                BComponent target = ((BComponent) targetORD.resolve(base).get()); // PH: this sometimes resolves to null, causing an NPE
+
+                if (linkIsValid(source, sourceSlotName, target, targetSlotName))
+                {
+                    BConverter converter = getConverterForLink(source, sourceSlotName, target, targetSlotName);
+                    Slot sourceSlot = source.getSlot(sourceSlotName);
+                    Slot targetSlot = target.getSlot(targetSlotName);
+                    BLink link = target.makeLink(source, sourceSlot, targetSlot, cx); // PH: sometimes getting a null pointer exception here
+                    target.add(null, link);
+                }
             }
-
-            String sourceORDString = linkDetails[0];
-
-            String sourceSlotName = linkDetails[1];
-            String targetORDString = linkDetails[2];
-            String targetSlotName = linkDetails[3];
-
-            BOrd sourceORD = BOrd.make(sourceORDString);
-            BOrd targetORD = BOrd.make(targetORDString);
-            BComponent source = ((BComponent) sourceORD.resolve(base).get());
-            BOrd sourceHandle = source.getHandleOrd();
-            BComponent target = ((BComponent) targetORD.resolve(base).get());
-
-            if (linkIsValid(source, sourceSlotName, target, targetSlotName)) {
-                BConverter converter = getConverterForLink(source, sourceSlotName, target, targetSlotName);
-                Slot sourceSlot = source.getSlot(sourceSlotName);
-                Slot targetSlot = target.getSlot(targetSlotName);
-                BLink link = target.makeLink(source, sourceSlot, targetSlot, cx);
-                target.add(null, link);
+            catch (Exception ex)
+            {
+                logger.warning("Error processing link: " + line + ", error: " + ex.getMessage());
             }
         }
         return linksToReturn;
     }
-
-
-
-
-
 
 
     private BConverter getConverterForLink(BComponent source, String sourceSlotName, BComponent target, String targetSlotName) {
@@ -133,7 +137,7 @@ public class LinkManager {
 
 
         } catch(Exception e) {
-            logger.warning("Could not get slot types for " + sourceSlotName + " and " + targetSlotName + "error: " + e);
+            logger.warning("Could not get slot types for " + sourceSlotName + " and " + targetSlotName + ", error: " + e);
             return null;
         }
 

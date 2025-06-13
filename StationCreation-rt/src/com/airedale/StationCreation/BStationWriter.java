@@ -184,11 +184,6 @@ public class BStationWriter extends BComponent
 
   // Main method. Calls all the other
   public void doWrite(Context cx) throws IOException {
-    getDriverContainer(cx);
-    getJsonNodeFromFile();
-    if (jsonNodeFromFile == null) {
-        logger.severe(NETWORKS_FILE + " file is empty");
-    }
     createAndAddNetworks(cx);
     addNullProxyControlPoints(cx);
     addTextBoxes(cx);
@@ -221,11 +216,21 @@ public class BStationWriter extends BComponent
       kitControlPointsList.remove(0);
       KitControlCreator kitControlCreator = new KitControlCreator();
       for (String kitControlPointLine : kitControlPointsList) {
-        kitControlCreator.addKitControlPointFromCSVLine(kitControlPointLine, cx);
+        if (kitControlPointLine.isEmpty()) {
+          continue;
+        }
+        try
+        {
+          kitControlCreator.addKitControlPointFromCSVLine(kitControlPointLine, cx);
+        }
+        catch (Exception ex)
+        {
+          logger.warning("Error processing KitControl point: " + kitControlPointLine + ", error: " + ex.getMessage());
+        }
       }
     }
     catch (Exception ex){
-      logger.warning("No file called "+ KIT_CONTROL_FILE);
+      logger.warning("Error processing file: "+ KIT_CONTROL_FILE + ", error: " + ex.getMessage());
     }
   }
 
@@ -236,11 +241,21 @@ public class BStationWriter extends BComponent
       textBoxesList.remove(0);
       TextBoxCreator textBoxCreator = new TextBoxCreator();
       for (String textBoxString : textBoxesList) {
-        textBoxCreator.addTextBoxFromCSVLine(textBoxString, cx);
+        if (textBoxString.isEmpty()) {
+          continue;
+        }
+        try
+        {
+          textBoxCreator.addTextBoxFromCSVLine(textBoxString, cx);
+        }
+        catch (Exception ex)
+        {
+          logger.warning("Error processing text box: " + textBoxString + ", error: " + ex.getMessage());
+        }
       }
     }
     catch (Exception ex){
-      logger.warning("No file called "+ TEXT_BOX_POINTS_FILE);
+      logger.warning("Error processing file: "+ TEXT_BOX_POINTS_FILE + ", error: " + ex.getMessage());
     }
   }
 
@@ -249,7 +264,7 @@ public class BStationWriter extends BComponent
       List<BLink> links = linkManager.readAndCreateLinksFromCSVFile(LINKS_FILE, cx);
     }
     catch (Exception ex){
-      logger.warning("No file called "+ LINKS_FILE);
+      logger.warning("Error processing file: "+ LINKS_FILE + ", error: " + ex.getMessage());
     }
   }
 
@@ -261,15 +276,39 @@ public class BStationWriter extends BComponent
       pointsList.remove(0);
       PointCreator pointCreator = new PointCreator();
       for (String point : pointsList) {
-        pointCreator.addNullProxyControlPointFromCSVLine(point, cx);
+        if (point.isEmpty()) {
+          continue;
+        }
+        try
+        {
+          pointCreator.addNullProxyControlPointFromCSVLine(point, cx);
+        }
+        catch (Exception ex)
+        {
+          logger.warning("Error processing null proxy control point: " + point + ", error: " + ex.getMessage());
+        }
       }
     }
     catch (Exception ex){
-      logger.warning("No file called "+ NULL_PROXY_POINTS_FILE);
+      logger.warning("Error processing file: "+ NULL_PROXY_POINTS_FILE + ", error: " + ex.getMessage());
     }
   }
 
   private void createAndAddNetworks(Context cx) {
+    getDriverContainer(cx);
+
+    try {
+      getJsonNodeFromFile();
+    } catch (JsonProcessingException ex) {
+      logger.severe("Error processing " + NETWORKS_FILE + ", " + ex.getMessage());
+      return;
+    }
+
+    if (jsonNodeFromFile == null) {
+      logger.severe(NETWORKS_FILE + " file is empty");
+      return;
+    }
+
     createAndAddBacnetNetwork(driverContainer, jsonNodeFromFile, cx);
     createAndAddModbusAsyncNetworks(driverContainer, jsonNodeFromFile, cx);
     createAndAddModbusTcpNetworks(driverContainer, jsonNodeFromFile, cx);
@@ -306,21 +345,19 @@ public class BStationWriter extends BComponent
   }
 
   private void addNetwork(BDriverContainer driverContainer, BModbusTcpNetwork network, String name, Context cx) {
-    if (!networkExists(driverContainer, name)) {
-      driverContainer.add(name, network, cx);
-      logger.info("Added Modbus TCP network: " + name);
-    } else {
-      logger.warning("Modbus TCP network already exists: " + name);
+    if (networkExists(driverContainer, name)) {
+      driverContainer.remove(name);
     }
+    driverContainer.add(name, network, cx);
+    logger.info("Added Modbus TCP network: " + name);
   }
 
   private void addNetwork(BDriverContainer driverContainer, BModbusAsyncNetwork network, String name, Context cx) {
-    if (!networkExists(driverContainer, name)) {
-      driverContainer.add(name, network, cx);
-      logger.info("Added Modbus Async network: " + name);
-    } else {
-      logger.warning("Modbus Async network already exists: " + name);
+    if (networkExists(driverContainer, name)) {
+      driverContainer.remove(name);
     }
+    driverContainer.add(name, network, cx);
+    logger.info("Added Modbus Async network: " + name);
   }
 
   private void addNetwork(BDriverContainer driverContainer, BBacnetNetwork network, String name, Context cx) {
@@ -405,12 +442,16 @@ public class BStationWriter extends BComponent
       BControlPoint controlPoint = pointCreator.createProxyPointFromCSVLine(pointCsvLine, "modbus");
       String pointName = pointCreator.getPointNameFromCSVLine(pointCsvLine);
       BModbusClientPointFolder bacnetPointFolder = createModbusSubFoldersIfTheyDoNotExist(pointCsvLine,modbusTcpDevice,cx);
-      if (bacnetPointFolder == null) {
-        pointsFolder.add(pointName, controlPoint, cx);
-      } else {
-        bacnetPointFolder.add(pointName, controlPoint, cx);
+      if (controlPoint == null) {
+        logger.warning("Trying to add Modbus point: " + pointName + " but BControlPoint is null"); // PH: need to find out why it's null
       }
-      pointsFolder.add(pointName, controlPoint, cx);
+      else {
+        if (bacnetPointFolder == null) {
+          pointsFolder.add(pointName, controlPoint, cx);
+        } else {
+          bacnetPointFolder.add(pointName, controlPoint, cx);
+        }
+      }
     }
     return modbusTcpDevice;
   }
@@ -610,14 +651,20 @@ public class BStationWriter extends BComponent
       if ((pointCsvLine == null)||(pointCsvLine.equals(""))) {
         continue;
       }
-
+      // log the pointCsvLine being processed
+      logger.info("Processing pointCsvLine: " + pointCsvLine);
       BControlPoint controlPoint = pointCreator.createProxyPointFromCSVLine(pointCsvLine, "bacnet");
       String pointName = pointCreator.getPointNameFromCSVLine(pointCsvLine);
       BBacnetPointFolder bacnetPointFolder = createBacnetSubFoldersIfTheyDoNotExist(pointCsvLine,bacnetDevice,cx);
-      if (bacnetPointFolder == null) {
-        pointsFolder.add(pointName, controlPoint, cx);
-      } else {
-        bacnetPointFolder.add(pointName, controlPoint, cx);
+      if (controlPoint == null) {
+        logger.warning("Trying to add BACnet point: " + pointName + " but BControlPoint is null"); // PH: need to find out why it's null
+      }
+      else {
+        if (bacnetPointFolder == null) {
+          pointsFolder.add(pointName, controlPoint, cx);
+        } else {
+          bacnetPointFolder.add(pointName, controlPoint, cx);
+        }
       }
     }
     return bacnetDevice;

@@ -273,6 +273,12 @@ public class BStationReader extends BComponent {
             String font = textBox.getFont();
             String slotPath = ((BComponent) textBox.getParent()).getSlotPathOrd().encodeToString();
             String text = textBox.getText().replaceAll("\n", ";");
+            // PH: replace commas to avoid upsetting CSV format
+            text = text.replaceAll(",", "COMMA");
+            // PH: handle empty text
+            if (text.trim().isEmpty()) {
+                text = "-";
+            }
 
             // append properties to CSV
             CSVToPrint.append(name).append(COMMA);         // 0

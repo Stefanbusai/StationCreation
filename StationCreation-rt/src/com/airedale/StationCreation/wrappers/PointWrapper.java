@@ -140,7 +140,7 @@ public class PointWrapper {
     protected void determineFacets() throws IOException {
         // facets
         BFacets pointFacets = controlPoint.getFacets();
-        this.facets = pointFacets.encodeToString();
+        this.facets = pointFacets.encodeToString().replace(",", "|"); // PH: replace commas to avoid confusing CSV format
     }
 
     protected void determineWsAnnotation() throws IOException {
