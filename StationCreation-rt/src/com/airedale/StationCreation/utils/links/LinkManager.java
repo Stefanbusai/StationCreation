@@ -104,7 +104,7 @@ public class LinkManager {
                 String targetSlotName = linkDetails[3];
 
                 BOrd sourceORD = BOrd.make(sourceORDString);
-                BOrd targetORD = BOrd.make(targetORDString);4c1smysqlP455w0rdr00t
+                BOrd targetORD = BOrd.make(targetORDString);
                 BComponent source = ((BComponent) sourceORD.resolve(base).get()); // PH: this sometimes resolves to null, causing an NPE
                 BOrd sourceHandle = source.getHandleOrd();
                 BComponent target = ((BComponent) targetORD.resolve(base).get()); // PH: this sometimes resolves to null, causing an NPE
