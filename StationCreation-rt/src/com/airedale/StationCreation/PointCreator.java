@@ -62,7 +62,7 @@ public class PointCreator
     public void addNullProxyControlPointFromCSVLine(String pointCsvLine, Context cx){
         String[] pointDetails = pointCsvLine.split(",");
         if (pointDetails.length != 6){
-            logger.warning("Point details not correct length: " + pointDetails.length);
+            logger.warning("Null proxy point details not correct length: " + pointDetails.length + ", " + pointCsvLine);
             return;
         }
         String pointName              = pointDetails[0];
@@ -309,18 +309,28 @@ public class PointCreator
 
         if (isNumeric)
         {
-            // facet string would look like units=u:percent;%;;;|precision=i:1|min=d:-inf|max=d:+inf
-            String unitName = facetsStrParts[0].split(";")[0].split(":")[1];
+            // PH: handle units not existing
+            int precisionIndex;
 
-            int precision = Integer.parseInt(facetsStrParts[1].split(":")[1]);
-            String minString = facetsStrParts[2].split(":")[1];
-            String maxString = facetsStrParts[3].split(":")[1];
+            if (facetsStrParts[0].startsWith("units")) {
+                // facet string would look like units=u:percent;%;;;|precision=i:1|min=d:-inf|max=d:+inf
+                precisionIndex = 1;
+            } else {
+                // facet string would look like precision=i:1|min=d:-inf|max=d:+inf
+                precisionIndex = 0;
+            }
+
+            String unitName = precisionIndex == 1 ? facetsStrParts[0].split(";")[0].split(":")[1] : "-";
+
+            int precision = Integer.parseInt(facetsStrParts[precisionIndex].split(":")[1]);
+            String minString = facetsStrParts[precisionIndex + 1].split(":")[1];
+            String maxString = facetsStrParts[precisionIndex + 2].split(":")[1];
 
             BDouble min = minString.equals("-inf") ? BDouble.NEGATIVE_INFINITY : BDouble.make(Double.parseDouble(minString));
             BDouble max = maxString.equals("+inf") ? BDouble.POSITIVE_INFINITY : BDouble.make(Double.parseDouble(maxString));
 
-            BUnit unit = BUnit.getUnit(unitName);
-            facets = BFacets.makeNumeric(unit, precision,min.getDouble(), max.getDouble());
+            BUnit unit = unitName.equals("-") ? BUnit.NULL : BUnit.getUnit(unitName);
+            facets = BFacets.makeNumeric(unit, precision, min.getDouble(), max.getDouble());
         }
         else if (isBoolean)
         {

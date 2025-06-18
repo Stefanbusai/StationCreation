@@ -18,7 +18,7 @@ public class TextBoxCreator {
     public void addTextBoxFromCSVLine(String textBoxString, Context cx) {
         String[] pointDetails = textBoxString.split(",");
         if (pointDetails.length != 8){
-            logger.warning("Text Box details not correct length: " + pointDetails.length);
+            logger.warning("Text Box details not correct length: " + pointDetails.length + ", " + textBoxString);
             return;
         }
         String name = pointDetails[0];
@@ -30,6 +30,12 @@ public class TextBoxCreator {
         String parentSlotPathString = pointDetails[6];
         String slotPathString= parentSlotPathString + "/" + name;
         String textSingleLine = pointDetails[7];
+        // PH: re-instate commas that were replaced
+        textSingleLine = textSingleLine.replaceAll("COMMA", ",");
+        // PH: if original text box was empty
+        if (textSingleLine.equals("-")) {
+            textSingleLine = "";
+        }
         // only does something if there isn't a text box there already
         // TODO decide if it should delete the existing and re-create it, to allow for edits
         if(!textBoxExists(slotPathString,cx)) {

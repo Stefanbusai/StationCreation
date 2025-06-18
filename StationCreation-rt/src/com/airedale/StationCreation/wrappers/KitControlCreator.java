@@ -55,7 +55,7 @@ public class KitControlCreator extends PointCreator {
     public void addKitControlPointFromCSVLine(String kitControlPointString, Context cx) throws IOException {
         String[] pointDetails = kitControlPointString.split(",");
         if (pointDetails.length != 11){
-            logger.warning("Kit Control points details not correct length: " + pointDetails.length);
+            logger.warning("Kit Control point details not correct length: " + pointDetails.length + ", " + kitControlPointString);
             return;
         }
         String pointName = pointDetails[0];
