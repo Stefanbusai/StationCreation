@@ -29,6 +29,8 @@
   <type class="com.airedale.StationCreation.BStationReader" name="StationReader"/>
   <type class="com.airedale.StationCreation.BStationWriter" name="StationWriter"/>
   <type class="com.airedale.StationCreation.BRecursiveTreePrint" name="RecursiveTreePrint"/>
+  <type class="com.airedale.StationCreation..pointExport.BBacnetPointExporter" name="BacnetPointExporter"/>
+  <type class="com.airedale.StationCreation.pointExport.BBacnetPointExporter" name="BacnetPointExporter"/>
  </types>
  <permissions>
   <niagara-permission-groups type="all"/>

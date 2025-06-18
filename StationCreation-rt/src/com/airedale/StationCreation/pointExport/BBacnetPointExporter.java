@@ -1,0 +1,293 @@
+package com.airedale.StationCreation.pointExport;
+
+import com.airedale.StationCreation.utils.FileUtils;
+
+import javax.baja.bacnet.export.BBacnetAnalogValueDescriptor;
+import javax.baja.bacnet.export.BBacnetPointDescriptor;
+import javax.baja.collection.BITable;
+import javax.baja.collection.TableCursor;
+import javax.baja.control.BControlPoint;
+import javax.baja.naming.BOrd;
+import javax.baja.nre.annotations.NiagaraAction;
+import javax.baja.nre.annotations.NiagaraProperty;
+import javax.baja.nre.annotations.NiagaraType;
+import javax.baja.status.BStatus;
+import javax.baja.status.BStatusString;
+import javax.baja.sys.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Logger;
+
+@NiagaraType
+@NiagaraProperty(
+        name = "status",
+        type = "BStatusString",
+        defaultValue = "new BStatusString(\"\")",
+        flags = Flags.SUMMARY | Flags.READONLY)
+@NiagaraProperty(
+        name = "bacnetNetworkOrd",
+        type = "BOrd",
+        defaultValue = "BOrd.make(\"station:|slot:/Drivers/BacnetNetwork\")",
+        flags = Flags.SUMMARY)
+@NiagaraProperty(
+        name = "csvFile",
+        type = "BOrd",
+        defaultValue = "BOrd.make(\"file:^points_to_export_to_bacnet.csv\")",
+        flags = Flags.SUMMARY)
+@NiagaraAction(
+        name = "exportPoints",
+        flags = Flags.ASYNC
+)
+@NiagaraAction(
+        name = "reset")
+public class BBacnetPointExporter
+        extends BComponent
+{
+//region /*+ ------------ BEGIN BAJA AUTO GENERATED CODE ------------ +*/
+//@formatter:off
+    /*@ $com.airedale.StationCreation.BBacnetPointExporter(3422206857)1.0$ @*/
+    /* Generated Fri Jun 13 09:46:07 BST 2025 by Slot-o-Matic (c) Tridium, Inc. 2012-2025 */
+
+    //region Property "status"
+
+    /**
+     * Slot for the {@code status} property.
+     * @see #getStatus
+     * @see #setStatus
+     */
+    public static final Property status = newProperty(Flags.SUMMARY | Flags.READONLY, new BStatusString(""), null);
+
+    /**
+     * Get the {@code status} property.
+     * @see #status
+     */
+    public BStatusString getStatus() { return (BStatusString)get(status); }
+
+    /**
+     * Set the {@code status} property.
+     * @see #status
+     */
+    public void setStatus(BStatusString v) { set(status, v, null); }
+
+    //endregion Property "status"
+
+    //region Property "bacnetNetworkOrd"
+
+    /**
+     * Slot for the {@code bacnetNetworkOrd} property.
+     * @see #getBacnetNetworkOrd
+     * @see #setBacnetNetworkOrd
+     */
+    public static final Property bacnetNetworkOrd = newProperty(Flags.SUMMARY, BOrd.make("station:|slot:/Drivers/BacnetNetwork"), null);
+
+    /**
+     * Get the {@code bacnetNetworkOrd} property.
+     * @see #bacnetNetworkOrd
+     */
+    public BOrd getBacnetNetworkOrd() { return (BOrd)get(bacnetNetworkOrd); }
+
+    /**
+     * Set the {@code bacnetNetworkOrd} property.
+     * @see #bacnetNetworkOrd
+     */
+    public void setBacnetNetworkOrd(BOrd v) { set(bacnetNetworkOrd, v, null); }
+
+    //endregion Property "bacnetNetworkOrd"
+
+    //region Property "csvFile"
+
+    /**
+     * Slot for the {@code csvFile} property.
+     * @see #getCsvFile
+     * @see #setCsvFile
+     */
+    public static final Property csvFile = newProperty(Flags.SUMMARY, BOrd.make("file:^points_to_export_to_bacnet.csv"), null);
+
+    /**
+     * Get the {@code csvFile} property.
+     * @see #csvFile
+     */
+    public BOrd getCsvFile() { return (BOrd)get(csvFile); }
+
+    /**
+     * Set the {@code csvFile} property.
+     * @see #csvFile
+     */
+    public void setCsvFile(BOrd v) { set(csvFile, v, null); }
+
+    //endregion Property "csvFile"
+
+    //region Action "exportPoints"
+
+    /**
+     * Slot for the {@code exportPoints} action.
+     * @see #exportPoints()
+     */
+    public static final Action exportPoints = newAction(Flags.ASYNC, null);
+
+    /**
+     * Invoke the {@code exportPoints} action.
+     * @see #exportPoints
+     */
+    public void exportPoints() { invoke(exportPoints, null, null); }
+
+    //endregion Action "exportPoints"
+
+    //region Action "reset"
+
+    /**
+     * Slot for the {@code reset} action.
+     * @see #reset()
+     */
+    public static final Action reset = newAction(0, null);
+
+    /**
+     * Invoke the {@code reset} action.
+     * @see #reset
+     */
+    public void reset() { invoke(reset, null, null); }
+
+    //endregion Action "reset"
+
+    //region Type
+
+    @Override
+    public Type getType() { return TYPE; }
+    public static final Type TYPE = Sys.loadType(BBacnetPointExporter.class);
+
+    //endregion Type
+
+//@formatter:on
+//endregion /*+ ------------ END BAJA AUTO GENERATED CODE -------------- +*/
+
+    /**
+     * Called by the framework when the component is started.
+     */
+    @Override
+    public void started() throws Exception
+    {
+        // If the station is already at steady state when the
+        // component is started, invoke the atSteadyState() callback.
+        if (Sys.atSteadyState())
+        {
+            atSteadyState();
+        }
+    }
+
+    /**
+     * Called by the framework during station bootstrap, after the steady state timeout has expired.
+     */
+    @Override
+    public void atSteadyState() throws Exception
+    {
+        reset();
+    }
+
+    /**
+     * Called by the framework when the component is stopped.
+     */
+    @Override
+    public void stopped() throws Exception
+    {
+        // do nothing
+    }
+
+    /**
+     * Reset action.
+     */
+    public void doReset()
+    {
+        setStatus(new BStatusString("Ready", BStatus.ok));
+    }
+    private final String BQLbacnetPointDescriptor = "bql:select * from bacnet:BacnetPointDescriptor";
+    private List<BBacnetPointDescriptor> listOfExistingExportPoints = new ArrayList<>();
+    public void doExportPoints(Context cx){
+        logger.info("Starting export points creation");
+        setStatus(new BStatusString("Starting export", BStatus.ok));
+
+        findAllBacnetExportedPoints();
+
+
+        // read csv file and loop through list
+        List<String> listOfPointLinesToExport = FileUtils.readLinesFromFileAsArrayList(getCsvFile());
+        listOfPointLinesToExport.remove(0);
+        for (String pointLineToExport : listOfPointLinesToExport){
+            PointToExport pointToExport = new PointToExport(pointLineToExport);
+            if (pointToExport.isValid()){
+                logger.info("Processing point line: " + pointLineToExport);
+                processExportPoint(pointToExport, cx);
+            }
+        }
+
+
+        // if it exists
+
+
+    }
+
+    private void findAllBacnetExportedPoints() {
+
+        BITable<? extends BIObject> table =
+                (BITable<? extends BIObject>) BOrd.make(BQLbacnetPointDescriptor).get(Sys.getStation());
+        try (TableCursor<? extends BIObject> cursor = table.cursor()) {
+            while (cursor.next()) {
+                try {
+                    BBacnetPointDescriptor point = (BBacnetPointDescriptor) cursor.get();
+
+//                    logger.info("Point parent ord: " + ((BComponent) point.getParent()).getSlotPathOrd());
+//                    BOrd pointSlotPath = (BOrd) cursor.get();
+//                    BControlPoint point = (BControlPoint) pointSlotPath.resolve(Sys.getStation(), cx).getComponent();
+                    listOfExistingExportPoints.add(point);
+                } catch (Exception e) {
+//                    logger.info("Point not an BOrd");
+                }
+            }
+        }
+        logger.info("Found "+ listOfExistingExportPoints.size() + " existing export points");
+    }
+
+    private void processExportPoint(PointToExport pointToExport, Context cx) {
+        // check if the export point exists already as described
+        if (pointExportExists(pointToExport)) {
+            logger.info("An export Point already exists for " + pointToExport.getSourceOrd());
+            BBacnetPointDescriptor existingPoint = getExistingPoint(pointToExport);
+            // if it exists and it is different, delete the existing and re-create
+            if (pointToExport.getAddress() != existingPoint.getObjectId().getInstanceNumber()) {
+                BComponent ExportTableParentFolder = existingPoint.getParentComponent();
+                String pointName = existingPoint.getName();
+                ExportTableParentFolder.remove(pointName);
+                // add pointToExport.createPointDescriptor if not Null
+                if (pointToExport.createPointDescriptor(cx) != null) {
+                    ExportTableParentFolder.add(pointName, pointToExport.createPointDescriptor(cx));
+                }
+            }
+            // and it is identical, do nothing
+        }
+        // if it doesn't exist, create it
+        else {
+            //TODO
+        }
+    }
+
+    private BBacnetPointDescriptor getExistingPoint(PointToExport pointToExport) {
+        BOrd pointToExportORD = pointToExport.getSourceOrd();
+        for ( BBacnetPointDescriptor existingExportPoint: listOfExistingExportPoints){
+            if (existingExportPoint.getPointOrd().equals(pointToExport.getSourceOrd())){
+                return existingExportPoint;
+            }
+        }
+        return null;
+    }
+
+    private boolean pointExportExists(PointToExport pointToExport) {
+        BOrd pointToExportORD = pointToExport.getSourceOrd();
+        for ( BBacnetPointDescriptor existingExportPoint: listOfExistingExportPoints){
+            if (existingExportPoint.getPointOrd().equals(pointToExport.getSourceOrd())){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static final Logger logger = Logger.getLogger("BacnetPointExporter");
+}

@@ -37,6 +37,7 @@ import java.util.logging.Logger;
 @NiagaraAction(
         name = "read"
 )
+
 public class BStationReader extends BComponent {
 //region /*+ ------------ BEGIN BAJA AUTO GENERATED CODE ------------ +*/
 //@formatter:off

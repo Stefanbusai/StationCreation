@@ -4,5 +4,6 @@
      <p m="sc=StationCreation" t="sc:RecursiveTreePrint" n="RecursiveTreePrint" />
      <p t="sc:StationReader" n="StationReader" />
      <p t="sc:StationWriter" n="StationWriter" />
+     <p t="sc:BacnetPointExporter" n="BacnetPointExporter" />
 </p>
 </bajaObjectGraph>

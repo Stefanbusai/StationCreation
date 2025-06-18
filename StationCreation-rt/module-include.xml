@@ -5,4 +5,8 @@
   <type class="com.airedale.StationCreation.BStationReader" name="StationReader"/>
   <type class="com.airedale.StationCreation.BStationWriter" name="StationWriter"/>
   <type class="com.airedale.StationCreation.BRecursiveTreePrint" name="RecursiveTreePrint"/>
+  <!--com.airedale.StationCreation.pointExport-->
+  <!--com.airedale.StationCreation..pointExport-->
+  <type class="com.airedale.StationCreation..pointExport.BBacnetPointExporter" name="BacnetPointExporter"/>
+  <type class="com.airedale.StationCreation.pointExport.BBacnetPointExporter" name="BacnetPointExporter"/>
 </types>
