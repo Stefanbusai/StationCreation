@@ -72,7 +72,7 @@ public class PointToExport {
 
     private static final Logger logger = Logger.getLogger("PointToExport");
 
-    public BBacnetPointDescriptor createPointDescriptor(Context cx) {
+    public BBacnetPointDescriptor createPointDescriptor(String pointName, Context cx) {
         // resolve the point in the SourceORD
         BBacnetPointDescriptor bacnetPointDescriptor;
         BControlPoint sourcePoint = (BControlPoint) sourceOrd.resolve(Sys.getStation(), cx).getComponent();
@@ -103,8 +103,7 @@ public class PointToExport {
         // set the source ORD
         bacnetPointDescriptor.setPointOrd(sourceOrd);
 
-
-        bacnetPointDescriptor.setObjectName(sourcePoint.getName()+"@"+address);
+        bacnetPointDescriptor.setObjectName(pointName+"@"+address);
         return bacnetPointDescriptor;
     }
 }

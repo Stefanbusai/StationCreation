@@ -283,7 +283,7 @@ public class BBacnetPointExporter
 
         // if it exists
 
-
+        setStatus(new BStatusString("Ready", BStatus.ok));
     }
 
     private void findAllBacnetExportedPoints() {
@@ -318,7 +318,7 @@ public class BBacnetPointExporter
                 String pointName = existingPoint.getName();
                 ExportTableParentFolder.remove(pointName);
                 // add pointToExport.createPointDescriptor if not Null
-                BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createPointDescriptor(cx);
+                BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createPointDescriptor(pointName, cx);
                 if (bacnetPointDescriptor != null) {
                     ExportTableParentFolder.add(pointName, bacnetPointDescriptor);
                     logger.info("Amended: " + bacnetPointDescriptor.toString(cx));
@@ -334,7 +334,9 @@ public class BBacnetPointExporter
             BComponent sourceComponent = (BComponent) pointToExport.getSourceOrd().resolve(Sys.getStation()).get();
             String pointName = createFormattedPointName(sourceComponent, cx);
 
-            BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createPointDescriptor(cx);
+            logger.info("Creating new export point with name: " + pointName);
+
+            BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createPointDescriptor(pointName, cx);
             if (bacnetPointDescriptor != null) {
                 exportTable.add(pointName, bacnetPointDescriptor);
                 logger.info("Created: " + bacnetPointDescriptor.toString(cx));
