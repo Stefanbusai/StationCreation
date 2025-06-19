@@ -2,10 +2,7 @@ package com.airedale.StationCreation.pointExport;
 
 import javax.baja.bacnet.datatypes.BBacnetObjectIdentifier;
 import javax.baja.bacnet.export.*;
-import javax.baja.control.BBooleanPoint;
-import javax.baja.control.BControlPoint;
-import javax.baja.control.BNumericPoint;
-import javax.baja.control.BNumericWritable;
+import javax.baja.control.*;
 import javax.baja.naming.BOrd;
 import javax.baja.sys.BValue;
 import javax.baja.sys.Context;
@@ -76,7 +73,7 @@ public class PointToExport {
         // resolve the point in the SourceORD
         BBacnetPointDescriptor bacnetPointDescriptor;
         BControlPoint sourcePoint = (BControlPoint) sourceOrd.resolve(Sys.getStation(), cx).getComponent();
-        if (sourcePoint.getType().equals(BNumericPoint.TYPE)){
+        if (sourcePoint.getType().equals(BNumericPoint.TYPE) || sourcePoint.getType().equals(BNumericWritable.TYPE)){
             if(writable){
                 bacnetPointDescriptor = new BBacnetAnalogOutputDescriptor();
                 bacnetPointDescriptor.setObjectId(BBacnetObjectIdentifier.make(1,address)); // 1 is the object type for AnalogOutput
@@ -85,7 +82,7 @@ public class PointToExport {
                 bacnetPointDescriptor = new BBacnetAnalogValueDescriptor();
                 bacnetPointDescriptor.setObjectId(BBacnetObjectIdentifier.make(2,address)); // 2 is the object type for AnalogValue
             }
-        } else if (sourcePoint.getType().equals(BBooleanPoint.TYPE)){
+        } else if (sourcePoint.getType().equals(BBooleanPoint.TYPE) || sourcePoint.getType().equals(BBooleanWritable.TYPE)){
             if(writable){
                 bacnetPointDescriptor = new BBacnetBinaryOutputDescriptor();
                 bacnetPointDescriptor.setObjectId(BBacnetObjectIdentifier.make(4,address)); // 4 is the object type for BinaryOutput
