@@ -238,7 +238,6 @@ public class BBacnetPointExporter
 
         findAllBacnetExportedPoints();
 
-
         // read csv file and loop through list
         List<String> listOfPointLinesToExport = FileUtils.readLinesFromFileAsArrayList(getCsvFile());
         listOfPointLinesToExport.remove(0);
@@ -257,6 +256,7 @@ public class BBacnetPointExporter
     }
 
     private void findAllBacnetExportedPoints() {
+        listOfExistingExportPoints = new ArrayList<>();
 
         BITable<? extends BIObject> table =
                 (BITable<? extends BIObject>) BOrd.make(BQLbacnetPointDescriptor).get(Sys.getStation());
