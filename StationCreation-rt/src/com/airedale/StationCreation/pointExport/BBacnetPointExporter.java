@@ -332,7 +332,7 @@ public class BBacnetPointExporter
             BComponent exportTable = (BComponent) exportTableOrd.resolve(Sys.getStation()).get();
 
             BComponent sourceComponent = (BComponent) pointToExport.getSourceOrd().resolve(Sys.getStation()).get();
-            String pointName = getFormattedPointName(sourceComponent, cx);
+            String pointName = createFormattedPointName(sourceComponent, cx);
 
             BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createPointDescriptor(cx);
             if (bacnetPointDescriptor != null) {
@@ -354,9 +354,9 @@ public class BBacnetPointExporter
     }
 
     /**
-     * Get a formatted point name.
+     * Create a formatted point name.
      */
-    private String getFormattedPointName(BComponent component, Context cx)
+    private String createFormattedPointName(BComponent component, Context cx)
     {
         String formattedPointName = getPointNameFormat().format(component, cx);
 
