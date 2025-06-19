@@ -287,8 +287,10 @@ public class BBacnetPointExporter
                 String pointName = existingPoint.getName();
                 ExportTableParentFolder.remove(pointName);
                 // add pointToExport.createPointDescriptor if not Null
-                if (pointToExport.createPointDescriptor(cx) != null) {
-                    ExportTableParentFolder.add(pointName, pointToExport.createPointDescriptor(cx));
+                BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createPointDescriptor(cx);
+                if (bacnetPointDescriptor != null) {
+                    ExportTableParentFolder.add(pointName, bacnetPointDescriptor);
+                    logger.info("Amended: " + bacnetPointDescriptor.toString(cx));
                 }
             }
             // and it is identical, do nothing
@@ -302,8 +304,7 @@ public class BBacnetPointExporter
             String pointName = sourceOrdParts[sourceOrdParts.length - 1];
 
             BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createPointDescriptor(cx);
-            if (bacnetPointDescriptor != null)
-            {
+            if (bacnetPointDescriptor != null) {
                 exportTable.add(pointName, bacnetPointDescriptor);
                 logger.info("Created: " + bacnetPointDescriptor.toString(cx));
             }
