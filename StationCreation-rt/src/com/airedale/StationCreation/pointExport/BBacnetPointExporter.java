@@ -2,6 +2,7 @@ package com.airedale.StationCreation.pointExport;
 
 import com.airedale.StationCreation.utils.BAcisWorker;
 import com.airedale.StationCreation.utils.FileUtils;
+import com.airedale.StationCreation.utils.StringUtils;
 
 import javax.baja.bacnet.export.BBacnetAnalogValueDescriptor;
 import javax.baja.bacnet.export.BBacnetPointDescriptor;
@@ -9,6 +10,7 @@ import javax.baja.collection.BITable;
 import javax.baja.collection.TableCursor;
 import javax.baja.control.BControlPoint;
 import javax.baja.naming.BOrd;
+import javax.baja.naming.SlotPath;
 import javax.baja.nre.annotations.NiagaraAction;
 import javax.baja.nre.annotations.NiagaraProperty;
 import javax.baja.nre.annotations.NiagaraType;
@@ -356,7 +358,9 @@ public class BBacnetPointExporter
      */
     private String getFormattedPointName(BComponent component, Context cx)
     {
-        return getPointNameFormat().format(component, cx);
+        String formattedPointName = getPointNameFormat().format(component, cx);
+
+        return StringUtils.insertSpecialCharacters(formattedPointName);
     }
 
     private static final Logger logger = Logger.getLogger("BacnetPointExporter");
