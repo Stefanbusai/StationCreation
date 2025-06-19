@@ -4,13 +4,10 @@ import com.airedale.StationCreation.utils.BAcisWorker;
 import com.airedale.StationCreation.utils.FileUtils;
 import com.airedale.StationCreation.utils.StringUtils;
 
-import javax.baja.bacnet.export.BBacnetAnalogValueDescriptor;
 import javax.baja.bacnet.export.BBacnetPointDescriptor;
 import javax.baja.collection.BITable;
 import javax.baja.collection.TableCursor;
-import javax.baja.control.BControlPoint;
 import javax.baja.naming.BOrd;
-import javax.baja.naming.SlotPath;
 import javax.baja.nre.annotations.NiagaraAction;
 import javax.baja.nre.annotations.NiagaraProperty;
 import javax.baja.nre.annotations.NiagaraType;
@@ -318,7 +315,7 @@ public class BBacnetPointExporter
                 String pointName = existingPoint.getName();
                 ExportTableParentFolder.remove(pointName);
                 // add pointToExport.createPointDescriptor if not Null
-                BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createPointDescriptor(pointName, cx);
+                BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createBacnetPointDescriptor(pointName, cx);
                 if (bacnetPointDescriptor != null) {
                     ExportTableParentFolder.add(pointName, bacnetPointDescriptor);
                     logger.info("Amended: " + bacnetPointDescriptor.toString(cx));
@@ -336,7 +333,7 @@ public class BBacnetPointExporter
 
             logger.info("Creating new export point with name: " + pointName);
 
-            BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createPointDescriptor(pointName, cx);
+            BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createBacnetPointDescriptor(pointName, cx);
             if (bacnetPointDescriptor != null) {
                 exportTable.add(pointName, bacnetPointDescriptor);
                 logger.info("Created: " + bacnetPointDescriptor.toString(cx));
@@ -365,7 +362,7 @@ public class BBacnetPointExporter
         return StringUtils.insertSpecialCharacters(formattedPointName);
     }
 
-    private static final Logger logger = Logger.getLogger("BacnetPointExporter");
+    private static final Logger logger = Logger.getLogger(TYPE.getModule().getModuleName() + "." + TYPE.getTypeName());
 
     /**
      * Use the custom worker thread for actions that have the "async" flag set.
