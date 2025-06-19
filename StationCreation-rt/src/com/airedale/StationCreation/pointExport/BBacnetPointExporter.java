@@ -1,5 +1,6 @@
 package com.airedale.StationCreation.pointExport;
 
+import com.airedale.StationCreation.utils.BAcisWorker;
 import com.airedale.StationCreation.utils.FileUtils;
 
 import javax.baja.bacnet.export.BBacnetAnalogValueDescriptor;
@@ -14,6 +15,8 @@ import javax.baja.nre.annotations.NiagaraType;
 import javax.baja.status.BStatus;
 import javax.baja.status.BStatusString;
 import javax.baja.sys.*;
+import javax.baja.util.IFuture;
+import javax.baja.util.Invocation;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -34,6 +37,11 @@ import java.util.logging.Logger;
         type = "BOrd",
         defaultValue = "BOrd.make(\"file:^points_to_export_to_bacnet.csv\")",
         flags = Flags.SUMMARY)
+@NiagaraProperty(
+        name = "worker",
+        type = "BAcisWorker",
+        defaultValue = "new BAcisWorker()",
+        flags = Flags.HIDDEN)
 @NiagaraAction(
         name = "exportPoints",
         flags = Flags.ASYNC
@@ -45,117 +53,140 @@ public class BBacnetPointExporter
 {
 //region /*+ ------------ BEGIN BAJA AUTO GENERATED CODE ------------ +*/
 //@formatter:off
-    /*@ $com.airedale.StationCreation.BBacnetPointExporter(3422206857)1.0$ @*/
-    /* Generated Fri Jun 13 09:46:07 BST 2025 by Slot-o-Matic (c) Tridium, Inc. 2012-2025 */
+/*@ $com.airedale.StationCreation.pointExport.BBacnetPointExporter(3504070663)1.0$ @*/
+/* Generated Thu Jun 19 10:43:59 BST 2025 by Slot-o-Matic (c) Tridium, Inc. 2012-2025 */
 
-    //region Property "status"
+  //region Property "status"
 
-    /**
-     * Slot for the {@code status} property.
-     * @see #getStatus
-     * @see #setStatus
-     */
-    public static final Property status = newProperty(Flags.SUMMARY | Flags.READONLY, new BStatusString(""), null);
+  /**
+   * Slot for the {@code status} property.
+   * @see #getStatus
+   * @see #setStatus
+   */
+  public static final Property status = newProperty(Flags.SUMMARY | Flags.READONLY, new BStatusString(""), null);
 
-    /**
-     * Get the {@code status} property.
-     * @see #status
-     */
-    public BStatusString getStatus() { return (BStatusString)get(status); }
+  /**
+   * Get the {@code status} property.
+   * @see #status
+   */
+  public BStatusString getStatus() { return (BStatusString)get(status); }
 
-    /**
-     * Set the {@code status} property.
-     * @see #status
-     */
-    public void setStatus(BStatusString v) { set(status, v, null); }
+  /**
+   * Set the {@code status} property.
+   * @see #status
+   */
+  public void setStatus(BStatusString v) { set(status, v, null); }
 
-    //endregion Property "status"
+  //endregion Property "status"
 
-    //region Property "bacnetNetworkOrd"
+  //region Property "bacnetNetworkOrd"
 
-    /**
-     * Slot for the {@code bacnetNetworkOrd} property.
-     * @see #getBacnetNetworkOrd
-     * @see #setBacnetNetworkOrd
-     */
-    public static final Property bacnetNetworkOrd = newProperty(Flags.SUMMARY, BOrd.make("station:|slot:/Drivers/BacnetNetwork"), null);
+  /**
+   * Slot for the {@code bacnetNetworkOrd} property.
+   * @see #getBacnetNetworkOrd
+   * @see #setBacnetNetworkOrd
+   */
+  public static final Property bacnetNetworkOrd = newProperty(Flags.SUMMARY, BOrd.make("station:|slot:/Drivers/BacnetNetwork"), null);
 
-    /**
-     * Get the {@code bacnetNetworkOrd} property.
-     * @see #bacnetNetworkOrd
-     */
-    public BOrd getBacnetNetworkOrd() { return (BOrd)get(bacnetNetworkOrd); }
+  /**
+   * Get the {@code bacnetNetworkOrd} property.
+   * @see #bacnetNetworkOrd
+   */
+  public BOrd getBacnetNetworkOrd() { return (BOrd)get(bacnetNetworkOrd); }
 
-    /**
-     * Set the {@code bacnetNetworkOrd} property.
-     * @see #bacnetNetworkOrd
-     */
-    public void setBacnetNetworkOrd(BOrd v) { set(bacnetNetworkOrd, v, null); }
+  /**
+   * Set the {@code bacnetNetworkOrd} property.
+   * @see #bacnetNetworkOrd
+   */
+  public void setBacnetNetworkOrd(BOrd v) { set(bacnetNetworkOrd, v, null); }
 
-    //endregion Property "bacnetNetworkOrd"
+  //endregion Property "bacnetNetworkOrd"
 
-    //region Property "csvFile"
+  //region Property "csvFile"
 
-    /**
-     * Slot for the {@code csvFile} property.
-     * @see #getCsvFile
-     * @see #setCsvFile
-     */
-    public static final Property csvFile = newProperty(Flags.SUMMARY, BOrd.make("file:^points_to_export_to_bacnet.csv"), null);
+  /**
+   * Slot for the {@code csvFile} property.
+   * @see #getCsvFile
+   * @see #setCsvFile
+   */
+  public static final Property csvFile = newProperty(Flags.SUMMARY, BOrd.make("file:^points_to_export_to_bacnet.csv"), null);
 
-    /**
-     * Get the {@code csvFile} property.
-     * @see #csvFile
-     */
-    public BOrd getCsvFile() { return (BOrd)get(csvFile); }
+  /**
+   * Get the {@code csvFile} property.
+   * @see #csvFile
+   */
+  public BOrd getCsvFile() { return (BOrd)get(csvFile); }
 
-    /**
-     * Set the {@code csvFile} property.
-     * @see #csvFile
-     */
-    public void setCsvFile(BOrd v) { set(csvFile, v, null); }
+  /**
+   * Set the {@code csvFile} property.
+   * @see #csvFile
+   */
+  public void setCsvFile(BOrd v) { set(csvFile, v, null); }
 
-    //endregion Property "csvFile"
+  //endregion Property "csvFile"
 
-    //region Action "exportPoints"
+  //region Property "worker"
 
-    /**
-     * Slot for the {@code exportPoints} action.
-     * @see #exportPoints()
-     */
-    public static final Action exportPoints = newAction(Flags.ASYNC, null);
+  /**
+   * Slot for the {@code worker} property.
+   * @see #getWorker
+   * @see #setWorker
+   */
+  public static final Property worker = newProperty(Flags.HIDDEN, new BAcisWorker(), null);
 
-    /**
-     * Invoke the {@code exportPoints} action.
-     * @see #exportPoints
-     */
-    public void exportPoints() { invoke(exportPoints, null, null); }
+  /**
+   * Get the {@code worker} property.
+   * @see #worker
+   */
+  public BAcisWorker getWorker() { return (BAcisWorker)get(worker); }
 
-    //endregion Action "exportPoints"
+  /**
+   * Set the {@code worker} property.
+   * @see #worker
+   */
+  public void setWorker(BAcisWorker v) { set(worker, v, null); }
 
-    //region Action "reset"
+  //endregion Property "worker"
 
-    /**
-     * Slot for the {@code reset} action.
-     * @see #reset()
-     */
-    public static final Action reset = newAction(0, null);
+  //region Action "exportPoints"
 
-    /**
-     * Invoke the {@code reset} action.
-     * @see #reset
-     */
-    public void reset() { invoke(reset, null, null); }
+  /**
+   * Slot for the {@code exportPoints} action.
+   * @see #exportPoints()
+   */
+  public static final Action exportPoints = newAction(Flags.ASYNC, null);
 
-    //endregion Action "reset"
+  /**
+   * Invoke the {@code exportPoints} action.
+   * @see #exportPoints
+   */
+  public void exportPoints() { invoke(exportPoints, null, null); }
 
-    //region Type
+  //endregion Action "exportPoints"
 
-    @Override
-    public Type getType() { return TYPE; }
-    public static final Type TYPE = Sys.loadType(BBacnetPointExporter.class);
+  //region Action "reset"
 
-    //endregion Type
+  /**
+   * Slot for the {@code reset} action.
+   * @see #reset()
+   */
+  public static final Action reset = newAction(0, null);
+
+  /**
+   * Invoke the {@code reset} action.
+   * @see #reset
+   */
+  public void reset() { invoke(reset, null, null); }
+
+  //endregion Action "reset"
+
+  //region Type
+
+  @Override
+  public Type getType() { return TYPE; }
+  public static final Type TYPE = Sys.loadType(BBacnetPointExporter.class);
+
+  //endregion Type
 
 //@formatter:on
 //endregion /*+ ------------ END BAJA AUTO GENERATED CODE -------------- +*/
@@ -290,4 +321,17 @@ public class BBacnetPointExporter
     }
 
     private static final Logger logger = Logger.getLogger("BacnetPointExporter");
+
+    /**
+     * Use the custom worker thread for actions that have the "async" flag set.
+     */
+    @Override
+    public IFuture post(Action action,
+                        BValue argument,
+                        Context context)
+    {
+        getWorker().postAsync(new Invocation(this, action, argument, context));
+        return null;
+    }
+
 }
