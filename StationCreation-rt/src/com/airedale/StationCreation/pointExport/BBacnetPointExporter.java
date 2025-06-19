@@ -15,6 +15,7 @@ import javax.baja.nre.annotations.NiagaraType;
 import javax.baja.status.BStatus;
 import javax.baja.status.BStatusString;
 import javax.baja.sys.*;
+import javax.baja.util.BFormat;
 import javax.baja.util.IFuture;
 import javax.baja.util.Invocation;
 import java.util.ArrayList;
@@ -31,6 +32,11 @@ import java.util.logging.Logger;
         name = "bacnetNetworkOrd",
         type = "BOrd",
         defaultValue = "BOrd.make(\"station:|slot:/Drivers/BacnetNetwork\")",
+        flags = Flags.SUMMARY)
+@NiagaraProperty(
+        name = "pointNameFormat",
+        type = "BFormat",
+        defaultValue = "BFormat.make(\"%name%\")",
         flags = Flags.SUMMARY)
 @NiagaraProperty(
         name = "csvFile",
@@ -53,8 +59,8 @@ public class BBacnetPointExporter
 {
 //region /*+ ------------ BEGIN BAJA AUTO GENERATED CODE ------------ +*/
 //@formatter:off
-/*@ $com.airedale.StationCreation.pointExport.BBacnetPointExporter(3504070663)1.0$ @*/
-/* Generated Thu Jun 19 10:43:59 BST 2025 by Slot-o-Matic (c) Tridium, Inc. 2012-2025 */
+/*@ $com.airedale.StationCreation.pointExport.BBacnetPointExporter(392740591)1.0$ @*/
+/* Generated Thu Jun 19 14:26:57 BST 2025 by Slot-o-Matic (c) Tridium, Inc. 2012-2025 */
 
   //region Property "status"
 
@@ -101,6 +107,29 @@ public class BBacnetPointExporter
   public void setBacnetNetworkOrd(BOrd v) { set(bacnetNetworkOrd, v, null); }
 
   //endregion Property "bacnetNetworkOrd"
+
+  //region Property "pointNameFormat"
+
+  /**
+   * Slot for the {@code pointNameFormat} property.
+   * @see #getPointNameFormat
+   * @see #setPointNameFormat
+   */
+  public static final Property pointNameFormat = newProperty(Flags.SUMMARY, BFormat.make("%name%"), null);
+
+  /**
+   * Get the {@code pointNameFormat} property.
+   * @see #pointNameFormat
+   */
+  public BFormat getPointNameFormat() { return (BFormat)get(pointNameFormat); }
+
+  /**
+   * Set the {@code pointNameFormat} property.
+   * @see #pointNameFormat
+   */
+  public void setPointNameFormat(BFormat v) { set(pointNameFormat, v, null); }
+
+  //endregion Property "pointNameFormat"
 
   //region Property "csvFile"
 
@@ -300,8 +329,8 @@ public class BBacnetPointExporter
             BOrd exportTableOrd = BOrd.make(getBacnetNetworkOrd().encodeToString() + "/localDevice/exportTable");
             BComponent exportTable = (BComponent) exportTableOrd.resolve(Sys.getStation()).get();
 
-            String[] sourceOrdParts = pointToExport.getSourceOrd().encodeToString().split("/");
-            String pointName = sourceOrdParts[sourceOrdParts.length - 1];
+            BComponent sourceComponent = (BComponent) pointToExport.getSourceOrd().resolve(Sys.getStation()).get();
+            String pointName = getFormattedPointName(sourceComponent, cx);
 
             BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createPointDescriptor(cx);
             if (bacnetPointDescriptor != null) {
@@ -322,15 +351,12 @@ public class BBacnetPointExporter
         return null;
     }
 
-    private boolean pointExportExists(PointToExport pointToExport) {
-        BOrd pointToExportORD = pointToExport.getSourceOrd();
-        for ( BBacnetPointDescriptor existingExportPoint: listOfExistingExportPoints){
-            if (existingExportPoint.getPointOrd().equals(pointToExportORD) ||
-                existingExportPoint.getHandleOrd().equals(pointToExportORD)){
-                return true;
-            }
-        }
-        return false;
+    /**
+     * Get a formatted point name.
+     */
+    private String getFormattedPointName(BComponent component, Context cx)
+    {
+        return getPointNameFormat().format(component, cx);
     }
 
     private static final Logger logger = Logger.getLogger("BacnetPointExporter");
