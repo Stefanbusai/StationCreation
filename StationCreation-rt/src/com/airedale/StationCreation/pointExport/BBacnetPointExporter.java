@@ -278,13 +278,12 @@ public class BBacnetPointExporter
     }
 
     private void processExportPoint(PointToExport pointToExport, Context cx) {
-        // check if the export point exists already as described
-        if (pointExportExists(pointToExport)) {
+        BBacnetPointDescriptor existingPoint = getExistingPoint(pointToExport);
+        if (existingPoint != null) {
             logger.info("An export Point already exists for " + pointToExport.getSourceOrd());
-            BBacnetPointDescriptor existingPoint = getExistingPoint(pointToExport);
             // if it exists and it is different, delete the existing and re-create
             if (pointToExport.getAddress() != existingPoint.getObjectId().getInstanceNumber()) {
-                BComponent ExportTableParentFolder = existingPoint.getParentComponent();
+                BComponent ExportTableParentFolder = (BComponent) existingPoint.getParent(); // getParentComponent() does not work
                 String pointName = existingPoint.getName();
                 ExportTableParentFolder.remove(pointName);
                 // add pointToExport.createPointDescriptor if not Null
@@ -296,14 +295,26 @@ public class BBacnetPointExporter
         }
         // if it doesn't exist, create it
         else {
-            //TODO
+            BOrd exportTableOrd = BOrd.make(getBacnetNetworkOrd().encodeToString() + "/localDevice/exportTable");
+            BComponent exportTable = (BComponent) exportTableOrd.resolve(Sys.getStation()).get();
+
+            String[] sourceOrdParts = pointToExport.getSourceOrd().encodeToString().split("/");
+            String pointName = sourceOrdParts[sourceOrdParts.length - 1];
+
+            BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createPointDescriptor(cx);
+            if (bacnetPointDescriptor != null)
+            {
+                exportTable.add(pointName, bacnetPointDescriptor);
+                logger.info("Created: " + bacnetPointDescriptor.toString(cx));
+            }
         }
     }
 
     private BBacnetPointDescriptor getExistingPoint(PointToExport pointToExport) {
         BOrd pointToExportORD = pointToExport.getSourceOrd();
         for ( BBacnetPointDescriptor existingExportPoint: listOfExistingExportPoints){
-            if (existingExportPoint.getPointOrd().equals(pointToExport.getSourceOrd())){
+            if (existingExportPoint.getPointOrd().equals(pointToExportORD) ||
+                existingExportPoint.getHandleOrd().equals(pointToExportORD)){
                 return existingExportPoint;
             }
         }
@@ -313,7 +324,8 @@ public class BBacnetPointExporter
     private boolean pointExportExists(PointToExport pointToExport) {
         BOrd pointToExportORD = pointToExport.getSourceOrd();
         for ( BBacnetPointDescriptor existingExportPoint: listOfExistingExportPoints){
-            if (existingExportPoint.getPointOrd().equals(pointToExport.getSourceOrd())){
+            if (existingExportPoint.getPointOrd().equals(pointToExportORD) ||
+                existingExportPoint.getHandleOrd().equals(pointToExportORD)){
                 return true;
             }
         }

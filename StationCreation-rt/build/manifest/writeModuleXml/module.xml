@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<module name="StationCreation-rt" bajaVersion="0" vendor="Airedale" vendorVersion="1.0" description="A module that can automate station production" preferredSymbol="sc" nre="true" autoload="true" installable="true" buildMillis="%%BUILD_MILLIS%%" buildHost="DESKTOP-HJ672LE" moduleName="StationCreation" runtimeProfile="rt">
+<module name="StationCreation-rt" bajaVersion="0" vendor="Airedale" vendorVersion="1.0" description="A module that can automate station production" preferredSymbol="sc" nre="true" autoload="true" installable="true" buildMillis="%%BUILD_MILLIS%%" buildHost="DESKTOP-UE8Q54E" moduleName="StationCreation" runtimeProfile="rt">
  <dependencies>
   <dependency name="alarm-rt" vendor="Tridium" vendorVersion="4.13"/>
   <dependency name="bacnet-rt" vendor="Tridium" vendorVersion="4.13"/>
@@ -29,8 +29,8 @@
   <type class="com.airedale.StationCreation.BStationReader" name="StationReader"/>
   <type class="com.airedale.StationCreation.BStationWriter" name="StationWriter"/>
   <type class="com.airedale.StationCreation.BRecursiveTreePrint" name="RecursiveTreePrint"/>
-  <type class="com.airedale.StationCreation..pointExport.BBacnetPointExporter" name="BacnetPointExporter"/>
   <type class="com.airedale.StationCreation.pointExport.BBacnetPointExporter" name="BacnetPointExporter"/>
+  <type class="com.airedale.StationCreation.utils.BAcisWorker" name="AcisWorker"/>
  </types>
  <permissions>
   <niagara-permission-groups type="all"/>
