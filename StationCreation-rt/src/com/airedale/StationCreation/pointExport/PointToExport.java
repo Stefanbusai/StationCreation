@@ -4,10 +4,8 @@ import javax.baja.bacnet.datatypes.BBacnetObjectIdentifier;
 import javax.baja.bacnet.export.*;
 import javax.baja.control.*;
 import javax.baja.naming.BOrd;
-import javax.baja.sys.BValue;
 import javax.baja.sys.Context;
 import javax.baja.sys.Sys;
-import java.util.function.Supplier;
 import java.util.logging.Logger;
 
 public class PointToExport {
