@@ -75,6 +75,7 @@ public class PointToExport {
             if(writable){
                 bacnetPointDescriptor = new BBacnetAnalogOutputDescriptor();
                 bacnetPointDescriptor.setObjectId(BBacnetObjectIdentifier.make(1,address)); // 1 is the object type for AnalogOutput
+                ((BBacnetAnalogOutputDescriptor) bacnetPointDescriptor).setBacnetWritable("in10");
             }
             else{
                 bacnetPointDescriptor = new BBacnetAnalogValueDescriptor();
@@ -84,6 +85,7 @@ public class PointToExport {
             if(writable){
                 bacnetPointDescriptor = new BBacnetBinaryOutputDescriptor();
                 bacnetPointDescriptor.setObjectId(BBacnetObjectIdentifier.make(4,address)); // 4 is the object type for BinaryOutput
+                ((BBacnetBinaryOutputDescriptor) bacnetPointDescriptor).setBacnetWritable("in10");
             }
             else{
                 bacnetPointDescriptor = new BBacnetBinaryValueDescriptor();
