@@ -3,6 +3,7 @@ package com.airedale.StationCreation.pointExport;
 import com.airedale.StationCreation.utils.BAcisWorker;
 import com.airedale.StationCreation.utils.FileUtils;
 import com.airedale.StationCreation.utils.StringUtils;
+import com.airedale.StationCreation.utils.links.LinkManager;
 import com.tridium.modbusCore.server.point.BModbusServerPointDeviceExt;
 
 import javax.baja.control.BControlPoint;
@@ -300,7 +301,15 @@ public class BModbusPointExporter
             BOrd modbusServerPointDeviceExtOrd = BOrd.make(getModbusSlaveDeviceOrd().encodeToString() + "/points");
             BModbusServerPointDeviceExt modbusServerPointDeviceExt = (BModbusServerPointDeviceExt) modbusServerPointDeviceExtOrd.resolve(Sys.getStation()).get();
             modbusServerPointDeviceExt.add(pointName, controlPoint);
-            logger.info("Created: " + controlPoint.toString(cx));
+            logger.info("Created control point with proxy ext: " + controlPoint.getProxyExt().toString(cx));
+
+            if (!LinkManager.targetAlreadyHasLink(sourceComponent, "out", controlPoint, "in10"))
+            {
+                Slot sourceSlot = sourceComponent.getSlot("out");
+                Slot targetSlot = controlPoint.getSlot("in10");
+                BLink link = controlPoint.makeLink(sourceComponent, sourceSlot, targetSlot, cx);
+                controlPoint.add(null, link);
+            }
         }
     }
 
