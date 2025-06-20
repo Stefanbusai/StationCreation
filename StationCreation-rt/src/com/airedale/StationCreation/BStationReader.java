@@ -539,7 +539,7 @@ public class BStationReader extends BComponent {
 
                 if (jsonNode.has("networkName"))
                 {
-                    String devicesFileName = jsonNode.get("networkName") + ".csv";
+                    String devicesFileName = jsonNode.get("networkName") + "_devices.csv";
                     csvToPrint.append(devicesFileName).append("\n");
                 }
                 else
