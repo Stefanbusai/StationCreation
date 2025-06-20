@@ -346,7 +346,7 @@ public class BStationWriter extends BComponent
 //            return;
 //        }
 
-        createNetworksJsonNodeFromCsvFiles();
+        networksJsonNodeFromFile = createNetworksJsonNodeFromCsvFiles();
 
         logger.info("---------------------------------------");
         logger.info(networksJsonNodeFromFile.toPrettyString());
@@ -899,7 +899,7 @@ public class BStationWriter extends BComponent
     /**
      * Create the JSON node from CSV files.
      */
-    private void createNetworksJsonNodeFromCsvFiles()
+    private ObjectNode createNetworksJsonNodeFromCsvFiles()
     {
         BOrd fileORD = BOrd.make("file:^" + NETWORKS_CSV_FILE);
 
@@ -941,6 +941,8 @@ public class BStationWriter extends BComponent
 
             rootObjectNode.set(networkName, objectNode);
         }
+
+        return rootObjectNode;
     }
 
     /**
