@@ -107,7 +107,7 @@ public class BStationReader extends BComponent {
         getDriverContainer(cx);
         addNetworksToJson();
         printNetworksJsonFile();
-        printNetworksCsvFiles();
+        printNetworksCsvFile();
         processNullProxyControlPoints(cx);
         processTextBoxes(cx);
         processKitControlBlocks(cx);
@@ -476,9 +476,9 @@ public class BStationReader extends BComponent {
     }
 
     /**
-     * Print the networks CSV files.
+     * Print the networks CSV file.
      */
-    private void printNetworksCsvFiles() throws IOException
+    private void printNetworksCsvFile() throws IOException
     {
         StringBuilder csvToPrint = new StringBuilder();
         csvToPrint.append("networkName").append(COMMA);      // 0
