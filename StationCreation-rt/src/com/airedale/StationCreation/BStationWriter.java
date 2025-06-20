@@ -930,13 +930,13 @@ public class BStationWriter extends BComponent
             ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
 
             objectNode.put("networkName", networkName);
-            objectNode.put("networkID", networkID);
-            objectNode.put("port", port);
-            objectNode.put("baudRate", baudRate);
-            objectNode.put("dataBits", dataBits);
-            objectNode.put("parity", parity);
-            objectNode.put("stopBits", stopBits);
-            objectNode.put("deviceCount", Integer.parseInt(deviceCount));
+            if (!networkID.equals("-")) objectNode.put("networkID", networkID);
+            if (!port.equals("-")) objectNode.put("port", port);
+            if (!baudRate.equals("-")) objectNode.put("baudRate", baudRate);
+            if (!dataBits.equals("-")) objectNode.put("dataBits", dataBits);
+            if (!parity.equals("-")) objectNode.put("parity", parity);
+            if (!stopBits.equals("-")) objectNode.put("stopBits", stopBits);
+            if (!deviceCount.equals("-")) objectNode.put("deviceCount", Integer.parseInt(deviceCount));
             objectNode.set("devices", createDevicesJsonNodes(devicesFile));
 
             rootObjectNode.set(networkName, objectNode);
@@ -979,14 +979,14 @@ public class BStationWriter extends BComponent
             ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
 
             objectNode.put("deviceName", deviceName);
-            objectNode.put("deviceFullAddress", deviceFullAddress);
-            objectNode.put("deviceMacAddress", deviceMacAddress);
-            objectNode.put("deviceNetwork", deviceNetwork);
-            objectNode.put("objectID", objectID);
-            objectNode.put("deviceAddress", Integer.parseInt(deviceAddress));
-            objectNode.put("deviceIPAddress", deviceIPAddress);
-            objectNode.put("pointsCount", Integer.parseInt(pointsCount));
-            objectNode.put("pointsListFile", pointsListFile);
+            if (!deviceFullAddress.equals("-")) objectNode.put("deviceFullAddress", deviceFullAddress);
+            if (!deviceMacAddress.equals("-")) objectNode.put("deviceMacAddress", deviceMacAddress);
+            if (!deviceNetwork.equals("-")) objectNode.put("deviceNetwork", deviceNetwork);
+            if (!objectID.equals("-")) objectNode.put("objectID", objectID);
+            if (!deviceAddress.equals("-")) objectNode.put("deviceAddress", Integer.parseInt(deviceAddress));
+            if (!deviceIPAddress.equals("-")) objectNode.put("deviceIPAddress", deviceIPAddress);
+            if (!pointsCount.equals("-")) objectNode.put("pointsCount", Integer.parseInt(pointsCount));
+            if (!pointsListFile.equals("-")) objectNode.put("pointsListFile", pointsListFile);
 
             rootObjectNode.set(deviceName, objectNode);
         }
