@@ -503,13 +503,13 @@ public class BStationReader extends BComponent {
                     String devicesFileName = "StationRead/" + networkName + "_devices.csv";
 
                     csvToPrint.append(networkName).append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("networkID") ? networkJsonNode.get("networkID") : "-").append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("port") ? networkJsonNode.get("port") : "-").append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("baudRate") ? networkJsonNode.get("baudRate") : "-").append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("dataBits") ? networkJsonNode.get("dataBits") : "-").append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("parity") ? networkJsonNode.get("parity") : "-").append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("stopBits") ? networkJsonNode.get("stopBits") : "-").append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("deviceCount") ? networkJsonNode.get("deviceCount") : "-").append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("networkID") ? networkJsonNode.get("networkID").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("port") ? networkJsonNode.get("port").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("baudRate") ? networkJsonNode.get("baudRate").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("dataBits") ? networkJsonNode.get("dataBits").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("parity") ? networkJsonNode.get("parity").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("stopBits") ? networkJsonNode.get("stopBits").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("deviceCount") ? networkJsonNode.get("deviceCount").toString().replace("\"", "") : "-").append(COMMA);
                     csvToPrint.append(devicesFileName).append("\n");
 
                     if (networkJsonNode.has("devices"))
@@ -549,15 +549,15 @@ public class BStationReader extends BComponent {
             if (deviceJsonNode.isObject()) {
                 if (deviceJsonNode.has("deviceName"))
                 {
-                    csvToPrint.append(deviceJsonNode.get("deviceName")).append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("deviceFullAddress") ? deviceJsonNode.get("deviceFullAddress") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("deviceMacAddress") ? deviceJsonNode.get("deviceMacAddress") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("deviceNetwork") ? deviceJsonNode.get("deviceNetwork") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("objectID") ? deviceJsonNode.get("objectID") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("deviceAddress") ? deviceJsonNode.get("deviceAddress") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("deviceIPAddress") ? deviceJsonNode.get("deviceIPAddress") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("pointsCount") ? deviceJsonNode.get("pointsCount") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("pointsListFile") ? deviceJsonNode.get("pointsListFile") : "-").append("\n");
+                    csvToPrint.append(deviceJsonNode.get("deviceName").toString().replace("\"", "")).append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("deviceFullAddress") ? deviceJsonNode.get("deviceFullAddress").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("deviceMacAddress") ? deviceJsonNode.get("deviceMacAddress").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("deviceNetwork") ? deviceJsonNode.get("deviceNetwork").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("objectID") ? deviceJsonNode.get("objectID").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("deviceAddress") ? deviceJsonNode.get("deviceAddress").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("deviceIPAddress") ? deviceJsonNode.get("deviceIPAddress").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("pointsCount") ? deviceJsonNode.get("pointsCount").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("pointsListFile") ? deviceJsonNode.get("pointsListFile").toString().replace("\"", "") : "-").append("\n");
                 }
             }
         }
