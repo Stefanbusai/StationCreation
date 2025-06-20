@@ -311,6 +311,17 @@ public class BModbusPointExporter
                 BLink link = controlPoint.makeLink(sourceComponent, sourceSlot, targetSlot, cx);
                 controlPoint.add(null, link);
             }
+
+            if (pointToExport.isWritable())
+            {
+                if (!LinkManager.targetAlreadyHasLink(controlPoint, "out", sourceComponent, "in10"))
+                {
+                    Slot sourceSlot = controlPoint.getSlot("out");
+                    Slot targetSlot = sourceComponent.getSlot("in10");
+                    BLink link = sourceComponent.makeLink(controlPoint, sourceSlot, targetSlot, cx);
+                    sourceComponent.add(null, link);
+                }
+            }
         }
     }
 
