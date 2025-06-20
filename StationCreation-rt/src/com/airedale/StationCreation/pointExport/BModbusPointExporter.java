@@ -3,11 +3,8 @@ package com.airedale.StationCreation.pointExport;
 import com.airedale.StationCreation.utils.BAcisWorker;
 import com.airedale.StationCreation.utils.FileUtils;
 import com.airedale.StationCreation.utils.StringUtils;
-import com.tridium.modbusCore.BModbusDevice;
 import com.tridium.modbusCore.server.point.BModbusServerPointDeviceExt;
-import com.tridium.modbusCore.server.point.BModbusServerProxyExt;
 
-import javax.baja.bacnet.export.BBacnetPointDescriptor;
 import javax.baja.control.BControlPoint;
 import javax.baja.naming.BOrd;
 import javax.baja.nre.annotations.NiagaraAction;
@@ -45,7 +42,7 @@ import java.util.logging.Logger;
 @NiagaraProperty(
         name = "csvFile",
         type = "BOrd",
-        defaultValue = "BOrd.make(\"file:^points_to_export_to_bacnet.csv\")",
+        defaultValue = "BOrd.make(\"file:^points_to_export_to_modbus.csv\")",
         flags = Flags.SUMMARY)
 
 @NiagaraProperty(
@@ -66,8 +63,8 @@ public class BModbusPointExporter
 {
 //region /*+ ------------ BEGIN BAJA AUTO GENERATED CODE ------------ +*/
 //@formatter:off
-/*@ $com.airedale.StationCreation.pointExport.BModbusPointExporter(258645149)1.0$ @*/
-/* Generated Fri Jun 20 13:19:24 BST 2025 by Slot-o-Matic (c) Tridium, Inc. 2012-2025 */
+/*@ $com.airedale.StationCreation.pointExport.BModbusPointExporter(1290310795)1.0$ @*/
+/* Generated Fri Jun 20 13:25:03 BST 2025 by Slot-o-Matic (c) Tridium, Inc. 2012-2025 */
 
   //region Property "status"
 
@@ -145,7 +142,7 @@ public class BModbusPointExporter
    * @see #getCsvFile
    * @see #setCsvFile
    */
-  public static final Property csvFile = newProperty(Flags.SUMMARY, BOrd.make("file:^points_to_export_to_bacnet.csv"), null);
+  public static final Property csvFile = newProperty(Flags.SUMMARY, BOrd.make("file:^points_to_export_to_modbus.csv"), null);
 
   /**
    * Get the {@code csvFile} property.
