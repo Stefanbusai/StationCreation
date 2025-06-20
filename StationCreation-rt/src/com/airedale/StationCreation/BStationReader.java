@@ -502,9 +502,11 @@ public class BStationReader extends BComponent {
 
                 if (networkJsonNode.has("networkName"))
                 {
-                    String devicesFileName = networkJsonNode.get("networkName") + "_devices.csv";
+                    String networkName = networkJsonNode.get("networkName").toString().replace("\"", "");
 
-                    csvToPrint.append(networkJsonNode.get("networkName")).append(COMMA);
+                    String devicesFileName = "StationRead/" + networkName + "_devices.csv";
+
+                    csvToPrint.append(networkName).append(COMMA);
                     csvToPrint.append(networkJsonNode.has("networkID") ? networkJsonNode.get("networkID") : "-").append(COMMA);
                     csvToPrint.append(networkJsonNode.has("port") ? networkJsonNode.get("port") : "-").append(COMMA);
                     csvToPrint.append(networkJsonNode.has("baudRate") ? networkJsonNode.get("baudRate") : "-").append(COMMA);
