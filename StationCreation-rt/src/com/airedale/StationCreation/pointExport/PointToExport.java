@@ -154,11 +154,12 @@ public class PointToExport
      */
     private BBacnetPointDescriptor createBacnetAnalogOutputDescriptor()
     {
-        BBacnetPointDescriptor bacnetPointDescriptor;
-        bacnetPointDescriptor = new BBacnetAnalogOutputDescriptor();
+        BBacnetPointDescriptor bacnetPointDescriptor = new BBacnetAnalogOutputDescriptor();
+
         bacnetPointDescriptor.setObjectId(
                 BBacnetObjectIdentifier.make(1, address)); // 1 is the object type for AnalogOutput
         ((BBacnetAnalogOutputDescriptor) bacnetPointDescriptor).setBacnetWritable("in10");
+
         return bacnetPointDescriptor;
     }
 
@@ -167,8 +168,8 @@ public class PointToExport
      */
     private BBacnetPointDescriptor createBacnetAnalogValueDescriptor()
     {
-        BBacnetPointDescriptor bacnetPointDescriptor;
-        bacnetPointDescriptor = new BBacnetAnalogValueDescriptor();
+        BBacnetPointDescriptor bacnetPointDescriptor = new BBacnetAnalogValueDescriptor();
+
         bacnetPointDescriptor.setObjectId(
                 BBacnetObjectIdentifier.make(2, address)); // 2 is the object type for AnalogValue
 
@@ -180,11 +181,12 @@ public class PointToExport
      */
     private BBacnetPointDescriptor createBacnetBinaryOutputDescriptor()
     {
-        BBacnetPointDescriptor bacnetPointDescriptor;
-        bacnetPointDescriptor = new BBacnetBinaryOutputDescriptor();
+        BBacnetPointDescriptor bacnetPointDescriptor = new BBacnetBinaryOutputDescriptor();
+
         bacnetPointDescriptor.setObjectId(
                 BBacnetObjectIdentifier.make(4, address)); // 4 is the object type for BinaryOutput
         ((BBacnetBinaryOutputDescriptor) bacnetPointDescriptor).setBacnetWritable("in10");
+
         return bacnetPointDescriptor;
     }
 
@@ -193,10 +195,11 @@ public class PointToExport
      */
     private BBacnetPointDescriptor createBacnetBinaryValueDescriptor()
     {
-        BBacnetPointDescriptor bacnetPointDescriptor;
-        bacnetPointDescriptor = new BBacnetBinaryValueDescriptor();
+        BBacnetPointDescriptor bacnetPointDescriptor = new BBacnetBinaryValueDescriptor();
+
         bacnetPointDescriptor.setObjectId(
                 BBacnetObjectIdentifier.make(5, address)); // 5 is the object type for BinaryValue
+
         return bacnetPointDescriptor;
     }
 
