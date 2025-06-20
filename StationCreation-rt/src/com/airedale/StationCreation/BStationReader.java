@@ -5,13 +5,12 @@ import com.airedale.StationCreation.utils.links.LinkManager;
 import com.airedale.StationCreation.wrappers.bacnet.BacnetNetworkWrapper;
 import com.airedale.StationCreation.wrappers.modbus.ModbusAsyncNetworkWrapper;
 import com.airedale.StationCreation.wrappers.modbus.ModbusTCPNetworkWrapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tridium.kitControl.timer.BBooleanDelay;
 import com.tridium.kitControl.timer.BNumericDelay;
 import com.tridium.kitControl.timer.BOneShot;
-import com.tridium.kitControl.util.BCounter;
-import com.tridium.kitControl.util.BReset;
 import com.tridium.modbusAsync.BModbusAsyncNetwork;
 import com.tridium.modbusTcp.BModbusTcpNetwork;
 
@@ -23,7 +22,6 @@ import javax.baja.driver.BDriverContainer;
 import javax.baja.naming.BOrd;
 import javax.baja.nre.annotations.NiagaraAction;
 import javax.baja.nre.annotations.NiagaraType;
-import javax.baja.status.BStatus;
 import javax.baja.status.BStatusBoolean;
 import javax.baja.status.BStatusNumeric;
 import javax.baja.sys.*;
@@ -72,7 +70,8 @@ public class BStationReader extends BComponent {
 //endregion /*+ ------------ END BAJA AUTO GENERATED CODE -------------- +*/
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private static final String NETWORKS_FILE = "StationRead/networks.json";
+    private static final String NETWORKS_JSON_FILE = "StationRead/networks.json";
+    private static final String NETWORKS_CSV_FILE = "StationRead/networks.csv";
     private static final String NULL_PROXY_POINTS_FILE = "StationRead/nullProxyPoints.csv";
     private static final String TEXT_BOX_FILE = "StationRead/textBoxes.csv";
     private static final String KIT_CONTROL_FILE = "StationRead/kitControlPoints.csv";
@@ -107,7 +106,8 @@ public class BStationReader extends BComponent {
     public void doRead(Context cx) throws IOException {
         getDriverContainer(cx);
         addNetworksToJson();
-        printJSONFile();
+        printNetworksJsonFile();
+        printNetworksCsvFiles();
         processNullProxyControlPoints(cx);
         processTextBoxes(cx);
         processKitControlBlocks(cx);
@@ -467,14 +467,91 @@ public class BStationReader extends BComponent {
 //        logger.info(jsonNetworksNode.toPrettyString());
     }
 
-    private void printJSONFile() throws IOException {
+    private void printNetworksJsonFile() throws IOException {
 
-        BOrd fileORD = BOrd.make("file:^" + NETWORKS_FILE);
-        FileUtils.deleteFileIfExists(NETWORKS_FILE);
+        BOrd fileORD = BOrd.make("file:^" + NETWORKS_JSON_FILE);
+        FileUtils.deleteFileIfExists(NETWORKS_JSON_FILE);
         FileUtils.createNewFile(fileORD);
-        FileUtils.printToFile(NETWORKS_FILE, jsonNetworksNode.toPrettyString(), false);
+        FileUtils.printToFile(NETWORKS_JSON_FILE, jsonNetworksNode.toPrettyString(), false);
     }
 
+    private void printNetworksCsvFiles() throws IOException
+    {
+        StringBuilder csvToPrint = new StringBuilder();
+        csvToPrint.append("networkName").append(COMMA);      // 0
+        csvToPrint.append("networkID").append(COMMA);        // 1
+        csvToPrint.append("port").append(COMMA);             // 2
+        csvToPrint.append("baudRate").append(COMMA);         // 3
+        csvToPrint.append("dataBits").append(COMMA);         // 4
+        csvToPrint.append("parity").append(COMMA);           // 5
+        csvToPrint.append("stopBits").append(COMMA);         // 6
+        csvToPrint.append("deviceCount").append(COMMA);      // 7
+        csvToPrint.append("devicesFile").append("\n");       // 8
+
+        Iterator<Map.Entry<String, JsonNode>> fields = jsonNetworksNode.fields();
+        while (fields.hasNext()) {
+            Map.Entry<String, JsonNode> jsonField = fields.next();
+            JsonNode jsonNode = jsonField.getValue();
+            if (jsonNode.isObject()) {
+                logger.info("---------------------------------------");
+                logger.info(jsonNode.toPrettyString());
+                logger.info("---------------------------------------");
+
+                if (jsonNode.has("networkName"))
+                    csvToPrint.append(jsonNode.get("networkName")).append(COMMA);
+                else
+                    csvToPrint.append("-").append(COMMA);
+
+                if (jsonNode.has("networkID"))
+                    csvToPrint.append(jsonNode.get("networkID")).append(COMMA);
+                else
+                    csvToPrint.append("-").append(COMMA);
+
+                if (jsonNode.has("port"))
+                    csvToPrint.append(jsonNode.get("port")).append(COMMA);
+                else
+                    csvToPrint.append("-").append(COMMA);
+
+                if (jsonNode.has("baudRate"))
+                    csvToPrint.append(jsonNode.get("baudRate")).append(COMMA);
+                else
+                    csvToPrint.append("-").append(COMMA);
+
+                if (jsonNode.has("dataBits"))
+                    csvToPrint.append(jsonNode.get("dataBits")).append(COMMA);
+                else
+                    csvToPrint.append("-").append(COMMA);
+
+                if (jsonNode.has("parity"))
+                    csvToPrint.append(jsonNode.get("parity")).append(COMMA);
+                else
+                    csvToPrint.append("-").append(COMMA);
+
+                if (jsonNode.has("stopBits"))
+                    csvToPrint.append(jsonNode.get("stopBits")).append(COMMA);
+                else
+                    csvToPrint.append("-").append(COMMA);
+
+                if (jsonNode.has("deviceCount"))
+                    csvToPrint.append(jsonNode.get("deviceCount")).append(COMMA);
+                else
+                    csvToPrint.append("-").append(COMMA);
+
+                if (jsonNode.has("networkName"))
+                {
+                    String devicesFileName = jsonNode.get("networkName") + ".csv";
+                    csvToPrint.append(devicesFileName).append("\n");
+                }
+                else
+                    csvToPrint.append("-").append("\n");
+            }
+        }
+
+        BOrd fileORD = BOrd.make("file:^" + NETWORKS_CSV_FILE);
+        FileUtils.deleteFileIfExists(NETWORKS_CSV_FILE);
+        FileUtils.createNewFile(fileORD);
+        FileUtils.printToFile(NETWORKS_CSV_FILE, csvToPrint.toString(), false);
+    }
 
     private void addModbusTCPNetworkToJSON(Property property) throws IOException {
         String modbusTCPNetworkName = property.getName();
