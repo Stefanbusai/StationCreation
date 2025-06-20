@@ -7,6 +7,7 @@
   <type class="com.airedale.StationCreation.BRecursiveTreePrint" name="RecursiveTreePrint"/>
   <!--com.airedale.StationCreation.pointExport-->
   <type class="com.airedale.StationCreation.pointExport.BBacnetPointExporter" name="BacnetPointExporter"/>
+  <type class="com.airedale.StationCreation.pointExport.BModbusPointExporter" name="ModbusPointExporter"/>
   <!--com.airedale.StationCreation.utils-->
   <type class="com.airedale.StationCreation.utils.BAcisWorker" name="AcisWorker"/>
 </types>

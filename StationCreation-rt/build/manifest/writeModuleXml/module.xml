@@ -30,6 +30,7 @@
   <type class="com.airedale.StationCreation.BStationWriter" name="StationWriter"/>
   <type class="com.airedale.StationCreation.BRecursiveTreePrint" name="RecursiveTreePrint"/>
   <type class="com.airedale.StationCreation.pointExport.BBacnetPointExporter" name="BacnetPointExporter"/>
+  <type class="com.airedale.StationCreation.pointExport.BModbusPointExporter" name="ModbusPointExporter"/>
   <type class="com.airedale.StationCreation.utils.BAcisWorker" name="AcisWorker"/>
  </types>
  <permissions>
