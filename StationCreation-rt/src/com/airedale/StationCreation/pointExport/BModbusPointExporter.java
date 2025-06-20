@@ -289,6 +289,7 @@ public class BModbusPointExporter
 
     /**
      * Process an export point.
+     * TODO - handle existing points?
      */
     private void processExportPoint(PointToExport pointToExport, Context cx) {
         BComponent sourceComponent = (BComponent) pointToExport.getSourceOrd().resolve(Sys.getStation()).get();
