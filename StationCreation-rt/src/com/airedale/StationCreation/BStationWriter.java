@@ -936,7 +936,7 @@ public class BStationWriter extends BComponent
             objectNode.put("dataBits", dataBits);
             objectNode.put("parity", parity);
             objectNode.put("stopBits", stopBits);
-            objectNode.put("deviceCount", deviceCount);
+            objectNode.put("deviceCount", Integer.parseInt(deviceCount));
             objectNode.set("devices", createDevicesJsonNodes(devicesFile));
 
             rootObjectNode.set(networkName, objectNode);
@@ -983,9 +983,9 @@ public class BStationWriter extends BComponent
             objectNode.put("deviceMacAddress", deviceMacAddress);
             objectNode.put("deviceNetwork", deviceNetwork);
             objectNode.put("objectID", objectID);
-            objectNode.put("deviceAddress", deviceAddress);
+            objectNode.put("deviceAddress", Integer.parseInt(deviceAddress));
             objectNode.put("deviceIPAddress", deviceIPAddress);
-            objectNode.put("pointsCount", pointsCount);
+            objectNode.put("pointsCount", Integer.parseInt(pointsCount));
             objectNode.put("pointsListFile", pointsListFile);
 
             rootObjectNode.set(deviceName, objectNode);
