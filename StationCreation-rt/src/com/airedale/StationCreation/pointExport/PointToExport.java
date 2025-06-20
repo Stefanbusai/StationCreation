@@ -1,10 +1,13 @@
 package com.airedale.StationCreation.pointExport;
 
+import com.tridium.modbusCore.datatypes.BFlexAddress;
+import com.tridium.modbusCore.enums.BAddressFormatEnum;
 import com.tridium.modbusCore.enums.BDataTypeEnum;
 import com.tridium.modbusCore.enums.BRegisterTypeEnum;
 import com.tridium.modbusCore.enums.BStatusTypeEnum;
 import com.tridium.modbusCore.server.point.BModbusServerBooleanProxyExt;
 import com.tridium.modbusCore.server.point.BModbusServerNumericProxyExt;
+import com.tridium.modbusCore.server.point.BModbusServerProxyExt;
 
 import javax.baja.bacnet.datatypes.BBacnetObjectIdentifier;
 import javax.baja.bacnet.export.*;
@@ -241,6 +244,12 @@ public class PointToExport
             valid = false;
             return null;
         }
+
+        BModbusServerProxyExt modbusServerProxyExt = (BModbusServerProxyExt) controlPoint.getProxyExt();
+        BFlexAddress flexAddress = new BFlexAddress();
+        flexAddress.setAddressFormat(BAddressFormatEnum.decimal);
+        flexAddress.setAddressFromInt(address);
+        modbusServerProxyExt.setDataAddress(flexAddress);
 
         return controlPoint;
     }
