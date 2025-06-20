@@ -496,10 +496,6 @@ public class BStationReader extends BComponent {
             Map.Entry<String, JsonNode> jsonField = fields.next();
             JsonNode networkJsonNode = jsonField.getValue();
             if (networkJsonNode.isObject()) {
-                logger.info("---------------------------------------");
-                logger.info(networkJsonNode.toPrettyString());
-                logger.info("---------------------------------------");
-
                 if (networkJsonNode.has("networkName"))
                 {
                     String networkName = networkJsonNode.get("networkName").toString().replace("\"", "");
@@ -551,10 +547,6 @@ public class BStationReader extends BComponent {
             Map.Entry<String, JsonNode> jsonField = fields.next();
             JsonNode deviceJsonNode = jsonField.getValue();
             if (deviceJsonNode.isObject()) {
-                logger.info("---------------------------------------");
-                logger.info(deviceJsonNode.toPrettyString());
-                logger.info("---------------------------------------");
-
                 if (deviceJsonNode.has("deviceName"))
                 {
                     csvToPrint.append(deviceJsonNode.get("deviceName")).append(COMMA);
