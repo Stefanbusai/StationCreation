@@ -61,7 +61,7 @@ public class DevicesHandler
 
                     if (networkJsonNode.has("devices"))
                     {
-                        // create a separate CSV file for each device
+                        // create a separate CSV file for the devices
                         printNetworkDevicesCsvFile(devicesFileName, networkJsonNode.get("devices"));
                     }
                 }
@@ -157,6 +157,7 @@ public class DevicesHandler
             if (!parity.equals("-")) objectNode.put("parity", parity);
             if (!stopBits.equals("-")) objectNode.put("stopBits", stopBits);
             if (!deviceCount.equals("-")) objectNode.put("deviceCount", Integer.parseInt(deviceCount));
+            // the devices are contained in a separate CSV file
             objectNode.set("devices", createDevicesJsonNodes(devicesFile));
 
             rootObjectNode.set(networkName, objectNode);
