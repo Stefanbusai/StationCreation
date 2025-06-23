@@ -1,5 +1,6 @@
 package com.airedale.StationCreation.wrappers.modbus;
 
+import com.airedale.StationCreation.wrappers.DeviceWrapper;
 import com.airedale.StationCreation.wrappers.NetworkWrapper;
 import com.airedale.StationCreation.wrappers.bacnet.BacnetDeviceWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +10,8 @@ import com.tridium.modbusAsync.BModbusAsyncNetwork;
 
 import javax.baja.serial.BSerialHelper;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ModbusAsyncNetworkWrapper extends NetworkWrapper
 {
@@ -39,11 +42,17 @@ public class ModbusAsyncNetworkWrapper extends NetworkWrapper
     }
 
     private void buildDevicesJSONNode() throws IOException {
+        Map<String, String> pointsListCsvMap = new HashMap<>();
+
         for (int i = 0; i < this.devices.length; i++)
         {
             ModbusAsyncDeviceWrapper device = new ModbusAsyncDeviceWrapper((BModbusAsyncDevice)this.modbusAsyncNetwork.getDevices()[i]);
             this.devices[i] = device;
+
             ObjectNode jsonSingleDeviceNode = device.getJsonDeviceNode();
+            checkForDuplicatePointsList(pointsListCsvMap, device, jsonSingleDeviceNode);
+            device.printPointsListToCSV();
+
             jsonDevicesNode.put(device.getDeviceName(), jsonSingleDeviceNode);
         }
     }

@@ -21,7 +21,6 @@ public class BacnetDeviceWrapper extends DeviceWrapper
     public BacnetDeviceWrapper(BBacnetDevice device) throws IOException {
         extractDeviceProperties(device);
         buildDeviceJSONNode();
-        printPointsListToCSV();
     }
 
     private void extractDeviceProperties(BBacnetDevice device) {
