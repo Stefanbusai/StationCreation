@@ -420,6 +420,7 @@ public class BStationReader extends BComponent {
     }
     private List<BControlPoint> findNullProxyControlPoints(Context cx) {
         List<BControlPoint> controlPointArrayList = new ArrayList<>();
+        List<BControlPoint> kitControlPointsToExclude = new ArrayList<>();
         // create BQL query to find all control points with null proxy
 //        String bqlQuery = "bql:select slotPath,displayName, type, fallback.value as 'Fallback', facets" +
 //                "  from control:ControlPoint where proxyExt.type = control:NullProxyExt";
@@ -431,6 +432,10 @@ public class BStationReader extends BComponent {
                 try {
                     BControlPoint point = (BControlPoint) cursor.get();
 
+                    if (point.getType().getModule().getModuleName().equals("kitControl")) {
+                        kitControlPointsToExclude.add(point);
+                        continue;
+                    }
 //                    logger.info("Point parent ord: " + ((BComponent) point.getParent()).getSlotPathOrd());
 //                    BOrd pointSlotPath = (BOrd) cursor.get();
 //                    BControlPoint point = (BControlPoint) pointSlotPath.resolve(Sys.getStation(), cx).getComponent();
@@ -440,6 +445,9 @@ public class BStationReader extends BComponent {
                 }
             }
         }
+
+        logger.info("Null Proxy Control Points excluded because in kitControl: " + kitControlPointsToExclude.size());
+
         return controlPointArrayList;
     }
 
