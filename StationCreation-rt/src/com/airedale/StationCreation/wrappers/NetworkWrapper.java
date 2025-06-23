@@ -30,7 +30,7 @@ public class NetworkWrapper {
         String pointsListFile = device.getPointsListFile();
         String pointsListCsv = device.createPointsListCSV();
 
-        boolean matchingFileFound = false;
+        boolean matchingPointsListFound = false;
 
         for (String pointsListFileFromMap : pointsListCsvMap.keySet()) {
             String pointsListCsvFromMap = pointsListCsvMap.get(pointsListFileFromMap);
@@ -38,12 +38,12 @@ public class NetworkWrapper {
             {
                 device.setPointsListFile(pointsListFileFromMap);
                 jsonSingleDeviceNode.put("pointsListFile", pointsListFileFromMap);
-                matchingFileFound = true;
+                matchingPointsListFound = true;
                 break;
             }
         }
 
-        if (!matchingFileFound)
+        if (!matchingPointsListFound)
         {
             pointsListCsvMap.put(pointsListFile, pointsListCsv);
         }
