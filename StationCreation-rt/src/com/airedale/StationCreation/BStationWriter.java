@@ -346,7 +346,8 @@ public class BStationWriter extends BComponent
 //            return;
 //        }
 
-        networksJsonNodeFromFile = createNetworksJsonNodeFromCsvFiles();
+        DevicesHandler devicesHandler = new DevicesHandler();
+        networksJsonNodeFromFile = devicesHandler.createNetworksJsonNodeFromCsvFiles(NETWORKS_CSV_FILE);
 
         logger.info("---------------------------------------");
         logger.info(networksJsonNodeFromFile.toPrettyString());
@@ -894,104 +895,6 @@ public class BStationWriter extends BComponent
         BOrd fileORD = BOrd.make("file:^" + NETWORKS_JSON_FILE);
         String jsonString = FileUtils.readLinesFromFileAsSring(fileORD);
         networksJsonNodeFromFile = objectMapper.readTree(jsonString);
-    }
-
-    /**
-     * Create the JSON node from CSV files.
-     */
-    private ObjectNode createNetworksJsonNodeFromCsvFiles()
-    {
-        BOrd fileORD = BOrd.make("file:^" + NETWORKS_CSV_FILE);
-
-        List<String> lines = FileUtils.readLinesFromFileAsArrayList(fileORD);
-        lines.remove(0);
-
-        ObjectNode rootObjectNode = JsonNodeFactory.instance.objectNode();
-
-        for (String line : lines)
-        {
-            String[] parts = line.split(",");
-
-            if (parts.length != 9)
-            {
-                continue;
-            }
-
-            String networkName = parts[0];
-            String networkID = parts[1];
-            String port = parts[2];
-            String baudRate = parts[3];
-            String dataBits = parts[4];
-            String parity = parts[5];
-            String stopBits = parts[6];
-            String deviceCount = parts[7];
-            String devicesFile = parts[8];
-
-            ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
-
-            objectNode.put("networkName", networkName);
-            if (!networkID.equals("-")) objectNode.put("networkID", networkID);
-            if (!port.equals("-")) objectNode.put("port", port);
-            if (!baudRate.equals("-")) objectNode.put("baudRate", baudRate);
-            if (!dataBits.equals("-")) objectNode.put("dataBits", dataBits);
-            if (!parity.equals("-")) objectNode.put("parity", parity);
-            if (!stopBits.equals("-")) objectNode.put("stopBits", stopBits);
-            if (!deviceCount.equals("-")) objectNode.put("deviceCount", Integer.parseInt(deviceCount));
-            objectNode.set("devices", createDevicesJsonNodes(devicesFile));
-
-            rootObjectNode.set(networkName, objectNode);
-        }
-
-        return rootObjectNode;
-    }
-
-    /**
-     * Create devices JSON nodes.
-     */
-    private ObjectNode createDevicesJsonNodes(String devicesFile)
-    {
-        BOrd fileORD = BOrd.make("file:^" + devicesFile);
-
-        List<String> lines = FileUtils.readLinesFromFileAsArrayList(fileORD);
-        lines.remove(0);
-
-        ObjectNode rootObjectNode = JsonNodeFactory.instance.objectNode();
-
-        for (String line : lines)
-        {
-            String[] parts = line.split(",");
-
-            if (parts.length != 9)
-            {
-                continue;
-            }
-
-            String deviceName = parts[0];
-            String deviceFullAddress = parts[1];
-            String deviceMacAddress = parts[2];
-            String deviceNetwork = parts[3];
-            String objectID = parts[4];
-            String deviceAddress = parts[5];
-            String deviceIPAddress = parts[6];
-            String pointsCount = parts[7];
-            String pointsListFile = parts[8];
-
-            ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
-
-            objectNode.put("deviceName", deviceName);
-            if (!deviceFullAddress.equals("-")) objectNode.put("deviceFullAddress", deviceFullAddress);
-            if (!deviceMacAddress.equals("-")) objectNode.put("deviceMacAddress", deviceMacAddress);
-            if (!deviceNetwork.equals("-")) objectNode.put("deviceNetwork", deviceNetwork);
-            if (!objectID.equals("-")) objectNode.put("objectID", objectID);
-            if (!deviceAddress.equals("-")) objectNode.put("deviceAddress", Integer.parseInt(deviceAddress));
-            if (!deviceIPAddress.equals("-")) objectNode.put("deviceIPAddress", deviceIPAddress);
-            if (!pointsCount.equals("-")) objectNode.put("pointsCount", Integer.parseInt(pointsCount));
-            if (!pointsListFile.equals("-")) objectNode.put("pointsListFile", pointsListFile);
-
-            rootObjectNode.set(deviceName, objectNode);
-        }
-
-        return rootObjectNode;
     }
 
     private List<JsonNode> searchJsonNode(JsonNode jsonNode, String searchString)
