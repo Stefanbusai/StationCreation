@@ -75,11 +75,6 @@ public class DevicesHandler
         FileUtils.printToFile(networksCsvFile, csvToPrint.toString(), false);
     }
 
-    private String removeDoubleQuotes(String str)
-    {
-        return str.replace("\"", "");
-    }
-
     /**
      * Print a network devices CSV file.
      */
@@ -219,6 +214,14 @@ public class DevicesHandler
         }
 
         return rootObjectNode;
+    }
+
+    /**
+     * Remove double quotes from the specified string.
+     */
+    private String removeDoubleQuotes(String str)
+    {
+        return str.replace("\"", "");
     }
 
 }
