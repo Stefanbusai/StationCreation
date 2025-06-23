@@ -14,6 +14,7 @@ public class DevicesHandler
 {
 
     private static final String COMMA = ",";
+    private static final String HYPHEN = "-";
 
     /**
      * Constructor.
@@ -45,18 +46,18 @@ public class DevicesHandler
             if (networkJsonNode.isObject()) {
                 if (networkJsonNode.has("networkName"))
                 {
-                    String networkName = networkJsonNode.get("networkName").toString().replace("\"", "");
+                    String networkName = removeDoubleQuotes(networkJsonNode.get("networkName").toString());
 
                     String devicesFileName = "StationRead/" + networkName + "_devices.csv";
 
                     csvToPrint.append(networkName).append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("networkID") ? networkJsonNode.get("networkID").toString().replace("\"", "") : "-").append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("port") ? networkJsonNode.get("port").toString().replace("\"", "") : "-").append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("baudRate") ? networkJsonNode.get("baudRate").toString().replace("\"", "") : "-").append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("dataBits") ? networkJsonNode.get("dataBits").toString().replace("\"", "") : "-").append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("parity") ? networkJsonNode.get("parity").toString().replace("\"", "") : "-").append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("stopBits") ? networkJsonNode.get("stopBits").toString().replace("\"", "") : "-").append(COMMA);
-                    csvToPrint.append(networkJsonNode.has("deviceCount") ? networkJsonNode.get("deviceCount").toString().replace("\"", "") : "-").append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("networkID") ? removeDoubleQuotes(networkJsonNode.get("networkID").toString()) : HYPHEN).append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("port") ? removeDoubleQuotes(networkJsonNode.get("port").toString()) : HYPHEN).append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("baudRate") ? removeDoubleQuotes(networkJsonNode.get("baudRate").toString()) : HYPHEN).append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("dataBits") ? removeDoubleQuotes(networkJsonNode.get("dataBits").toString()) : HYPHEN).append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("parity") ? removeDoubleQuotes(networkJsonNode.get("parity").toString()) : HYPHEN).append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("stopBits") ? removeDoubleQuotes(networkJsonNode.get("stopBits").toString()) : HYPHEN).append(COMMA);
+                    csvToPrint.append(networkJsonNode.has("deviceCount") ? removeDoubleQuotes(networkJsonNode.get("deviceCount").toString()) : HYPHEN).append(COMMA);
                     csvToPrint.append(devicesFileName).append("\n");
 
                     if (networkJsonNode.has("devices"))
@@ -72,6 +73,11 @@ public class DevicesHandler
         FileUtils.deleteFileIfExists(networksCsvFile);
         FileUtils.createNewFile(fileORD);
         FileUtils.printToFile(networksCsvFile, csvToPrint.toString(), false);
+    }
+
+    private String removeDoubleQuotes(String str)
+    {
+        return str.replace("\"", "");
     }
 
     /**
@@ -97,15 +103,15 @@ public class DevicesHandler
             if (deviceJsonNode.isObject()) {
                 if (deviceJsonNode.has("deviceName"))
                 {
-                    csvToPrint.append(deviceJsonNode.get("deviceName").toString().replace("\"", "")).append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("deviceFullAddress") ? deviceJsonNode.get("deviceFullAddress").toString().replace("\"", "") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("deviceMacAddress") ? deviceJsonNode.get("deviceMacAddress").toString().replace("\"", "") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("deviceNetwork") ? deviceJsonNode.get("deviceNetwork").toString().replace("\"", "") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("objectID") ? deviceJsonNode.get("objectID").toString().replace("\"", "") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("deviceAddress") ? deviceJsonNode.get("deviceAddress").toString().replace("\"", "") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("deviceIPAddress") ? deviceJsonNode.get("deviceIPAddress").toString().replace("\"", "") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("pointsCount") ? deviceJsonNode.get("pointsCount").toString().replace("\"", "") : "-").append(COMMA);
-                    csvToPrint.append(deviceJsonNode.has("pointsListFile") ? deviceJsonNode.get("pointsListFile").toString().replace("\"", "") : "-").append("\n");
+                    csvToPrint.append(removeDoubleQuotes(deviceJsonNode.get("deviceName").toString())).append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("deviceFullAddress") ? removeDoubleQuotes(deviceJsonNode.get("deviceFullAddress").toString()) : HYPHEN).append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("deviceMacAddress") ? removeDoubleQuotes(deviceJsonNode.get("deviceMacAddress").toString()) : HYPHEN).append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("deviceNetwork") ? removeDoubleQuotes(deviceJsonNode.get("deviceNetwork").toString()) : HYPHEN).append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("objectID") ? removeDoubleQuotes(deviceJsonNode.get("objectID").toString()) : HYPHEN).append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("deviceAddress") ? removeDoubleQuotes(deviceJsonNode.get("deviceAddress").toString()) : HYPHEN).append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("deviceIPAddress") ? removeDoubleQuotes(deviceJsonNode.get("deviceIPAddress").toString()) : HYPHEN).append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("pointsCount") ? removeDoubleQuotes(deviceJsonNode.get("pointsCount").toString()) : HYPHEN).append(COMMA);
+                    csvToPrint.append(deviceJsonNode.has("pointsListFile") ? removeDoubleQuotes(deviceJsonNode.get("pointsListFile").toString()) : HYPHEN).append("\n");
                 }
             }
         }
@@ -130,7 +136,7 @@ public class DevicesHandler
 
         for (String line : lines)
         {
-            String[] parts = line.split(",");
+            String[] parts = line.split(COMMA);
 
             if (parts.length != 9)
             {
@@ -150,13 +156,13 @@ public class DevicesHandler
             ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
 
             objectNode.put("networkName", networkName);
-            if (!networkID.equals("-")) objectNode.put("networkID", networkID);
-            if (!port.equals("-")) objectNode.put("port", port);
-            if (!baudRate.equals("-")) objectNode.put("baudRate", baudRate);
-            if (!dataBits.equals("-")) objectNode.put("dataBits", dataBits);
-            if (!parity.equals("-")) objectNode.put("parity", parity);
-            if (!stopBits.equals("-")) objectNode.put("stopBits", stopBits);
-            if (!deviceCount.equals("-")) objectNode.put("deviceCount", Integer.parseInt(deviceCount));
+            if (!networkID.equals(HYPHEN)) objectNode.put("networkID", networkID);
+            if (!port.equals(HYPHEN)) objectNode.put("port", port);
+            if (!baudRate.equals(HYPHEN)) objectNode.put("baudRate", baudRate);
+            if (!dataBits.equals(HYPHEN)) objectNode.put("dataBits", dataBits);
+            if (!parity.equals(HYPHEN)) objectNode.put("parity", parity);
+            if (!stopBits.equals(HYPHEN)) objectNode.put("stopBits", stopBits);
+            if (!deviceCount.equals(HYPHEN)) objectNode.put("deviceCount", Integer.parseInt(deviceCount));
             // the devices are contained in a separate CSV file
             objectNode.set("devices", createDevicesJsonNodes(devicesFile));
 
@@ -180,7 +186,7 @@ public class DevicesHandler
 
         for (String line : lines)
         {
-            String[] parts = line.split(",");
+            String[] parts = line.split(COMMA);
 
             if (parts.length != 9)
             {
@@ -200,14 +206,14 @@ public class DevicesHandler
             ObjectNode objectNode = JsonNodeFactory.instance.objectNode();
 
             objectNode.put("deviceName", deviceName);
-            if (!deviceFullAddress.equals("-")) objectNode.put("deviceFullAddress", deviceFullAddress);
-            if (!deviceMacAddress.equals("-")) objectNode.put("deviceMacAddress", deviceMacAddress);
-            if (!deviceNetwork.equals("-")) objectNode.put("deviceNetwork", deviceNetwork);
-            if (!objectID.equals("-")) objectNode.put("objectID", objectID);
-            if (!deviceAddress.equals("-")) objectNode.put("deviceAddress", Integer.parseInt(deviceAddress));
-            if (!deviceIPAddress.equals("-")) objectNode.put("deviceIPAddress", deviceIPAddress);
-            if (!pointsCount.equals("-")) objectNode.put("pointsCount", Integer.parseInt(pointsCount));
-            if (!pointsListFile.equals("-")) objectNode.put("pointsListFile", pointsListFile);
+            if (!deviceFullAddress.equals(HYPHEN)) objectNode.put("deviceFullAddress", deviceFullAddress);
+            if (!deviceMacAddress.equals(HYPHEN)) objectNode.put("deviceMacAddress", deviceMacAddress);
+            if (!deviceNetwork.equals(HYPHEN)) objectNode.put("deviceNetwork", deviceNetwork);
+            if (!objectID.equals(HYPHEN)) objectNode.put("objectID", objectID);
+            if (!deviceAddress.equals(HYPHEN)) objectNode.put("deviceAddress", Integer.parseInt(deviceAddress));
+            if (!deviceIPAddress.equals(HYPHEN)) objectNode.put("deviceIPAddress", deviceIPAddress);
+            if (!pointsCount.equals(HYPHEN)) objectNode.put("pointsCount", Integer.parseInt(pointsCount));
+            if (!pointsListFile.equals(HYPHEN)) objectNode.put("pointsListFile", pointsListFile);
 
             rootObjectNode.set(deviceName, objectNode);
         }
