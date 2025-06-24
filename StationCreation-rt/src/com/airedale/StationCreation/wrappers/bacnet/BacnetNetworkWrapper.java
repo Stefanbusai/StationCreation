@@ -7,6 +7,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import javax.baja.bacnet.BBacnetNetwork;
 import javax.baja.bacnet.datatypes.BBacnetObjectIdentifier;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class BacnetNetworkWrapper extends NetworkWrapper
 {
@@ -41,11 +43,17 @@ public class BacnetNetworkWrapper extends NetworkWrapper
     }
 
     private void buildDevicesJSONNode() throws IOException {
+        Map<String, String> pointsListCsvMap = new HashMap<>();
+
         for (int i = 0; i < this.devices.length; i++)
         {
             BacnetDeviceWrapper device = new BacnetDeviceWrapper(this.bacnetNetwork.getDeviceList()[i]);
             this.devices[i] = device;
+
             ObjectNode jsonSingleDeviceNode = device.getJsonDeviceNode();
+            checkForDuplicatePointsList(pointsListCsvMap, device, jsonSingleDeviceNode);
+            device.printPointsListToCSV();
+
             jsonDevicesNode.put(device.getDeviceName(), jsonSingleDeviceNode);
         }
     }

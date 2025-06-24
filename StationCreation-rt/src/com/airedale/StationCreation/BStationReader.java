@@ -5,13 +5,12 @@ import com.airedale.StationCreation.utils.links.LinkManager;
 import com.airedale.StationCreation.wrappers.bacnet.BacnetNetworkWrapper;
 import com.airedale.StationCreation.wrappers.modbus.ModbusAsyncNetworkWrapper;
 import com.airedale.StationCreation.wrappers.modbus.ModbusTCPNetworkWrapper;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.tridium.kitControl.timer.BBooleanDelay;
 import com.tridium.kitControl.timer.BNumericDelay;
 import com.tridium.kitControl.timer.BOneShot;
-import com.tridium.kitControl.util.BCounter;
-import com.tridium.kitControl.util.BReset;
 import com.tridium.modbusAsync.BModbusAsyncNetwork;
 import com.tridium.modbusTcp.BModbusTcpNetwork;
 
@@ -23,7 +22,6 @@ import javax.baja.driver.BDriverContainer;
 import javax.baja.naming.BOrd;
 import javax.baja.nre.annotations.NiagaraAction;
 import javax.baja.nre.annotations.NiagaraType;
-import javax.baja.status.BStatus;
 import javax.baja.status.BStatusBoolean;
 import javax.baja.status.BStatusNumeric;
 import javax.baja.sys.*;
@@ -72,7 +70,8 @@ public class BStationReader extends BComponent {
 //endregion /*+ ------------ END BAJA AUTO GENERATED CODE -------------- +*/
 
     private final ObjectMapper mapper = new ObjectMapper();
-    private static final String NETWORKS_FILE = "StationRead/networks.json";
+    private static final String NETWORKS_JSON_FILE = "StationRead/networks.json";
+    private static final String NETWORKS_CSV_FILE = "StationRead/networks.csv";
     private static final String NULL_PROXY_POINTS_FILE = "StationRead/nullProxyPoints.csv";
     private static final String TEXT_BOX_FILE = "StationRead/textBoxes.csv";
     private static final String KIT_CONTROL_FILE = "StationRead/kitControlPoints.csv";
@@ -105,9 +104,12 @@ public class BStationReader extends BComponent {
     private BDriverContainer driverContainer;
 
     public void doRead(Context cx) throws IOException {
+        jsonNetworksNode = mapper.createObjectNode();
         getDriverContainer(cx);
         addNetworksToJson();
-        printJSONFile();
+        //printNetworksJsonFile();
+        DevicesHandler devicesHandler = new DevicesHandler();
+        devicesHandler.printNetworksCsvFile(jsonNetworksNode, NETWORKS_CSV_FILE);
         processNullProxyControlPoints(cx);
         processTextBoxes(cx);
         processKitControlBlocks(cx);
@@ -418,6 +420,7 @@ public class BStationReader extends BComponent {
     }
     private List<BControlPoint> findNullProxyControlPoints(Context cx) {
         List<BControlPoint> controlPointArrayList = new ArrayList<>();
+        List<BControlPoint> kitControlPointsToExclude = new ArrayList<>();
         // create BQL query to find all control points with null proxy
 //        String bqlQuery = "bql:select slotPath,displayName, type, fallback.value as 'Fallback', facets" +
 //                "  from control:ControlPoint where proxyExt.type = control:NullProxyExt";
@@ -429,6 +432,10 @@ public class BStationReader extends BComponent {
                 try {
                     BControlPoint point = (BControlPoint) cursor.get();
 
+                    if (point.getType().getModule().getModuleName().equals("kitControl")) {
+                        kitControlPointsToExclude.add(point);
+                        continue;
+                    }
 //                    logger.info("Point parent ord: " + ((BComponent) point.getParent()).getSlotPathOrd());
 //                    BOrd pointSlotPath = (BOrd) cursor.get();
 //                    BControlPoint point = (BControlPoint) pointSlotPath.resolve(Sys.getStation(), cx).getComponent();
@@ -438,6 +445,9 @@ public class BStationReader extends BComponent {
                 }
             }
         }
+
+        logger.info("Null Proxy Control Points excluded because in kitControl: " + kitControlPointsToExclude.size());
+
         return controlPointArrayList;
     }
 
@@ -467,14 +477,13 @@ public class BStationReader extends BComponent {
 //        logger.info(jsonNetworksNode.toPrettyString());
     }
 
-    private void printJSONFile() throws IOException {
+    private void printNetworksJsonFile() throws IOException {
 
-        BOrd fileORD = BOrd.make("file:^" + NETWORKS_FILE);
-        FileUtils.deleteFileIfExists(NETWORKS_FILE);
+        BOrd fileORD = BOrd.make("file:^" + NETWORKS_JSON_FILE);
+        FileUtils.deleteFileIfExists(NETWORKS_JSON_FILE);
         FileUtils.createNewFile(fileORD);
-        FileUtils.printToFile(NETWORKS_FILE, jsonNetworksNode.toPrettyString(), false);
+        FileUtils.printToFile(NETWORKS_JSON_FILE, jsonNetworksNode.toPrettyString(), false);
     }
-
 
     private void addModbusTCPNetworkToJSON(Property property) throws IOException {
         String modbusTCPNetworkName = property.getName();

@@ -3,10 +3,10 @@ package com.airedale.StationCreation.pointExport;
 import com.airedale.StationCreation.utils.BAcisWorker;
 import com.airedale.StationCreation.utils.FileUtils;
 import com.airedale.StationCreation.utils.StringUtils;
+import com.airedale.StationCreation.utils.links.LinkManager;
+import com.tridium.modbusCore.server.point.BModbusServerPointDeviceExt;
 
-import javax.baja.bacnet.export.BBacnetPointDescriptor;
-import javax.baja.collection.BITable;
-import javax.baja.collection.TableCursor;
+import javax.baja.control.BControlPoint;
 import javax.baja.naming.BOrd;
 import javax.baja.nre.annotations.NiagaraAction;
 import javax.baja.nre.annotations.NiagaraProperty;
@@ -17,49 +17,55 @@ import javax.baja.sys.*;
 import javax.baja.util.BFormat;
 import javax.baja.util.IFuture;
 import javax.baja.util.Invocation;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 @NiagaraType
+
 @NiagaraProperty(
         name = "status",
         type = "BStatusString",
         defaultValue = "new BStatusString(\"\")",
         flags = Flags.SUMMARY | Flags.READONLY)
+
 @NiagaraProperty(
-        name = "bacnetNetworkOrd",
+        name = "modbusSlaveDeviceOrd",
         type = "BOrd",
-        defaultValue = "BOrd.make(\"station:|slot:/Drivers/BacnetNetwork\")",
+        defaultValue = "BOrd.make(\"station:|slot:/Drivers/ModbusSlaveNetwork/ModbusSlaveDevice\")",
         flags = Flags.SUMMARY)
+
 @NiagaraProperty(
         name = "pointNameFormat",
         type = "BFormat",
         defaultValue = "BFormat.make(\"%name%\")",
         flags = Flags.SUMMARY)
+
 @NiagaraProperty(
         name = "csvFile",
         type = "BOrd",
-        defaultValue = "BOrd.make(\"file:^points_to_export_to_bacnet.csv\")",
+        defaultValue = "BOrd.make(\"file:^points_to_export_to_modbus.csv\")",
         flags = Flags.SUMMARY)
+
 @NiagaraProperty(
         name = "worker",
         type = "BAcisWorker",
         defaultValue = "new BAcisWorker()",
         flags = Flags.HIDDEN)
+
 @NiagaraAction(
         name = "exportPoints",
-        flags = Flags.ASYNC
-)
+        flags = Flags.ASYNC)
+
 @NiagaraAction(
         name = "reset")
-public class BBacnetPointExporter
+
+public class BModbusPointExporter
         extends BComponent
 {
 //region /*+ ------------ BEGIN BAJA AUTO GENERATED CODE ------------ +*/
 //@formatter:off
-/*@ $com.airedale.StationCreation.pointExport.BBacnetPointExporter(392740591)1.0$ @*/
-/* Generated Thu Jun 19 14:26:57 BST 2025 by Slot-o-Matic (c) Tridium, Inc. 2012-2025 */
+/*@ $com.airedale.StationCreation.pointExport.BModbusPointExporter(1290310795)1.0$ @*/
+/* Generated Fri Jun 20 13:25:03 BST 2025 by Slot-o-Matic (c) Tridium, Inc. 2012-2025 */
 
   //region Property "status"
 
@@ -84,28 +90,28 @@ public class BBacnetPointExporter
 
   //endregion Property "status"
 
-  //region Property "bacnetNetworkOrd"
+  //region Property "modbusSlaveDeviceOrd"
 
   /**
-   * Slot for the {@code bacnetNetworkOrd} property.
-   * @see #getBacnetNetworkOrd
-   * @see #setBacnetNetworkOrd
+   * Slot for the {@code modbusSlaveDeviceOrd} property.
+   * @see #getModbusSlaveDeviceOrd
+   * @see #setModbusSlaveDeviceOrd
    */
-  public static final Property bacnetNetworkOrd = newProperty(Flags.SUMMARY, BOrd.make("station:|slot:/Drivers/BacnetNetwork"), null);
+  public static final Property modbusSlaveDeviceOrd = newProperty(Flags.SUMMARY, BOrd.make("station:|slot:/Drivers/ModbusSlaveNetwork/ModbusSlaveDevice"), null);
 
   /**
-   * Get the {@code bacnetNetworkOrd} property.
-   * @see #bacnetNetworkOrd
+   * Get the {@code modbusSlaveDeviceOrd} property.
+   * @see #modbusSlaveDeviceOrd
    */
-  public BOrd getBacnetNetworkOrd() { return (BOrd)get(bacnetNetworkOrd); }
+  public BOrd getModbusSlaveDeviceOrd() { return (BOrd)get(modbusSlaveDeviceOrd); }
 
   /**
-   * Set the {@code bacnetNetworkOrd} property.
-   * @see #bacnetNetworkOrd
+   * Set the {@code modbusSlaveDeviceOrd} property.
+   * @see #modbusSlaveDeviceOrd
    */
-  public void setBacnetNetworkOrd(BOrd v) { set(bacnetNetworkOrd, v, null); }
+  public void setModbusSlaveDeviceOrd(BOrd v) { set(modbusSlaveDeviceOrd, v, null); }
 
-  //endregion Property "bacnetNetworkOrd"
+  //endregion Property "modbusSlaveDeviceOrd"
 
   //region Property "pointNameFormat"
 
@@ -137,7 +143,7 @@ public class BBacnetPointExporter
    * @see #getCsvFile
    * @see #setCsvFile
    */
-  public static final Property csvFile = newProperty(Flags.SUMMARY, BOrd.make("file:^points_to_export_to_bacnet.csv"), null);
+  public static final Property csvFile = newProperty(Flags.SUMMARY, BOrd.make("file:^points_to_export_to_modbus.csv"), null);
 
   /**
    * Get the {@code csvFile} property.
@@ -212,12 +218,14 @@ public class BBacnetPointExporter
 
   @Override
   public Type getType() { return TYPE; }
-  public static final Type TYPE = Sys.loadType(BBacnetPointExporter.class);
+  public static final Type TYPE = Sys.loadType(BModbusPointExporter.class);
 
   //endregion Type
 
 //@formatter:on
 //endregion /*+ ------------ END BAJA AUTO GENERATED CODE -------------- +*/
+
+    private static final Logger logger = Logger.getLogger(TYPE.getModule().getModuleName() + "." + TYPE.getTypeName());
 
     /**
      * Called by the framework when the component is started.
@@ -258,15 +266,14 @@ public class BBacnetPointExporter
     {
         setStatus(new BStatusString("Ready", BStatus.ok));
     }
-    private final String BQLbacnetPointDescriptor = "bql:select * from bacnet:BacnetPointDescriptor";
-    private List<BBacnetPointDescriptor> listOfExistingExportPoints = new ArrayList<>();
+
+    /**
+     * ExportPoints action.
+     */
     public void doExportPoints(Context cx){
         logger.info("Starting export points creation");
         setStatus(new BStatusString("Starting export", BStatus.ok));
 
-        findAllBacnetExportedPoints();
-
-        // read csv file and loop through list
         List<String> listOfPointLinesToExport = FileUtils.readLinesFromFileAsArrayList(getCsvFile());
         listOfPointLinesToExport.remove(0);
         for (String pointLineToExport : listOfPointLinesToExport){
@@ -277,79 +284,45 @@ public class BBacnetPointExporter
             }
         }
 
-
-        // if it exists
-
         setStatus(new BStatusString("Ready", BStatus.ok));
     }
 
-    private void findAllBacnetExportedPoints() {
-        listOfExistingExportPoints = new ArrayList<>();
-
-        BITable<? extends BIObject> table =
-                (BITable<? extends BIObject>) BOrd.make(BQLbacnetPointDescriptor).get(Sys.getStation());
-        try (TableCursor<? extends BIObject> cursor = table.cursor()) {
-            while (cursor.next()) {
-                try {
-                    BBacnetPointDescriptor point = (BBacnetPointDescriptor) cursor.get();
-
-//                    logger.info("Point parent ord: " + ((BComponent) point.getParent()).getSlotPathOrd());
-//                    BOrd pointSlotPath = (BOrd) cursor.get();
-//                    BControlPoint point = (BControlPoint) pointSlotPath.resolve(Sys.getStation(), cx).getComponent();
-                    listOfExistingExportPoints.add(point);
-                } catch (Exception e) {
-//                    logger.info("Point not an BOrd");
-                }
-            }
-        }
-        logger.info("Found "+ listOfExistingExportPoints.size() + " existing export points");
-    }
-
+    /**
+     * Process an export point.
+     * TODO - handle existing points?
+     */
     private void processExportPoint(PointToExport pointToExport, Context cx) {
-        BBacnetPointDescriptor existingPoint = getExistingPoint(pointToExport);
-        if (existingPoint != null) {
-            logger.info("An export Point already exists for " + pointToExport.getSourceOrd());
-            // if it exists and it is different, delete the existing and re-create
-            if (pointToExport.getAddress() != existingPoint.getObjectId().getInstanceNumber()) {
-                BComponent ExportTableParentFolder = (BComponent) existingPoint.getParent(); // getParentComponent() does not work
-                String pointName = existingPoint.getName();
-                ExportTableParentFolder.remove(pointName);
-                // add pointToExport.createPointDescriptor if not Null
-                BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createBacnetPointDescriptor(pointName, cx);
-                if (bacnetPointDescriptor != null) {
-                    ExportTableParentFolder.add(pointName, bacnetPointDescriptor);
-                    logger.info("Amended: " + bacnetPointDescriptor.toString(cx));
+        BComponent sourceComponent = (BComponent) pointToExport.getSourceOrd().resolve(Sys.getStation()).get();
+        String pointName = createFormattedPointName(sourceComponent, cx);
+
+        logger.info("Creating new export point with name: " + pointName);
+
+        BControlPoint controlPoint = pointToExport.createModbusServerControlPoint(pointName, cx);
+        if (controlPoint != null) {
+            BOrd modbusServerPointDeviceExtOrd = BOrd.make(getModbusSlaveDeviceOrd().encodeToString() + "/points");
+            BModbusServerPointDeviceExt modbusServerPointDeviceExt = (BModbusServerPointDeviceExt) modbusServerPointDeviceExtOrd.resolve(Sys.getStation()).get();
+            modbusServerPointDeviceExt.add(pointName, controlPoint);
+            logger.info("Created control point with proxy ext: " + controlPoint.getProxyExt().toString(cx));
+
+            if (!LinkManager.targetAlreadyHasLink(sourceComponent, "out", controlPoint, "in10"))
+            {
+                Slot sourceSlot = sourceComponent.getSlot("out");
+                Slot targetSlot = controlPoint.getSlot("in10");
+                BLink link = controlPoint.makeLink(sourceComponent, sourceSlot, targetSlot, cx);
+                controlPoint.add(null, link);
+            }
+
+            if (pointToExport.isWritable())
+            {
+                if (!LinkManager.targetAlreadyHasLink(controlPoint, "out", sourceComponent, "in10"))
+                {
+                    Slot sourceSlot = controlPoint.getSlot("out");
+                    Slot targetSlot = sourceComponent.getSlot("in10");
+                    BLink link = sourceComponent.makeLink(controlPoint, sourceSlot, targetSlot, cx);
+                    sourceComponent.add(null, link);
                 }
             }
-            // and it is identical, do nothing
         }
-        // if it doesn't exist, create it
-        else {
-            BOrd exportTableOrd = BOrd.make(getBacnetNetworkOrd().encodeToString() + "/localDevice/exportTable");
-            BComponent exportTable = (BComponent) exportTableOrd.resolve(Sys.getStation()).get();
-
-            BComponent sourceComponent = (BComponent) pointToExport.getSourceOrd().resolve(Sys.getStation()).get();
-            String pointName = createFormattedPointName(sourceComponent, cx);
-
-            logger.info("Creating new export point with name: " + pointName);
-
-            BBacnetPointDescriptor bacnetPointDescriptor = pointToExport.createBacnetPointDescriptor(pointName, cx);
-            if (bacnetPointDescriptor != null) {
-                exportTable.add(pointName, bacnetPointDescriptor);
-                logger.info("Created: " + bacnetPointDescriptor.toString(cx));
-            }
-        }
-    }
-
-    private BBacnetPointDescriptor getExistingPoint(PointToExport pointToExport) {
-        BOrd pointToExportORD = pointToExport.getSourceOrd();
-        for ( BBacnetPointDescriptor existingExportPoint: listOfExistingExportPoints){
-            if (existingExportPoint.getPointOrd().equals(pointToExportORD) ||
-                existingExportPoint.getHandleOrd().equals(pointToExportORD)){
-                return existingExportPoint;
-            }
-        }
-        return null;
     }
 
     /**
@@ -361,8 +334,6 @@ public class BBacnetPointExporter
 
         return StringUtils.insertSpecialCharacters(formattedPointName);
     }
-
-    private static final Logger logger = Logger.getLogger(TYPE.getModule().getModuleName() + "." + TYPE.getTypeName());
 
     /**
      * Use the custom worker thread for actions that have the "async" flag set.

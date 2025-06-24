@@ -19,7 +19,6 @@ public class ModbusAsyncDeviceWrapper extends DeviceWrapper
     public ModbusAsyncDeviceWrapper(BModbusAsyncDevice device) throws IOException {
         extractDeviceProperties(device);
         buildDeviceJSONNode();
-        printPointsListToCSV();
     }
 
     private void extractDeviceProperties(BModbusAsyncDevice device) {

@@ -26,7 +26,7 @@ public class DeviceWrapper
     protected ObjectNode jsonDeviceNode = mapper.createObjectNode();;
     protected ObjectNode jsonPointsNode = mapper.createObjectNode();
 
-    protected String createPointsListCSV() throws IOException {
+    public String createPointsListCSV() throws IOException {
         logger.fine("createPointsListCSV");
         StringBuilder CSVToPrint = new StringBuilder();
         //build headers
@@ -98,7 +98,7 @@ public class DeviceWrapper
         jsonDeviceNode.set("points", jsonPointsNode);
     }
 
-    protected void printPointsListToCSV() throws IOException {
+    public void printPointsListToCSV() throws IOException {
         String CSVtoPrint = createPointsListCSV();
         BOrd fileORD = BOrd.make("file:^" + pointsListFile);
         FileUtils.deleteFileIfExists(pointsListFile);
@@ -110,8 +110,19 @@ public class DeviceWrapper
     public String getDeviceName() {
         return deviceName;
     }
+
     public ObjectNode getJsonDeviceNode() {
         return jsonDeviceNode;
+    }
+
+    public String getPointsListFile()
+    {
+        return pointsListFile;
+    }
+
+    public void setPointsListFile(String pointsListFile)
+    {
+        this.pointsListFile = pointsListFile;
     }
 
     private static final Logger logger = Logger.getLogger("DeviceWrapper");

@@ -149,7 +149,7 @@ public class LinkManager {
         return !targetAlreadyHasLink(source, sourceSlotName, target, targetSlotName);
     }
 
-    private boolean targetAlreadyHasLink(BComponent source, String sourceSlotName, BComponent target, String targetSlotName){
+    public static boolean targetAlreadyHasLink(BComponent source, String sourceSlotName, BComponent target, String targetSlotName){
 
         BLink[] targetLinks = target.getLinks();
         for (BLink actualLink : targetLinks) {

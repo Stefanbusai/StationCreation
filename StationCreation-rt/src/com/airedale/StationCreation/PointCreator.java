@@ -322,7 +322,7 @@ public class PointCreator
 
             String unitName = precisionIndex == 1 ? facetsStrParts[0].split(";")[0].split(":")[1] : "-";
 
-            int precision = Integer.parseInt(facetsStrParts[precisionIndex].split(":")[1]);
+            int precision = (int) Double.parseDouble(facetsStrParts[precisionIndex].split(":")[1]); // to handle e.g. "1.0"
             String minString = facetsStrParts[precisionIndex + 1].split(":")[1];
             String maxString = facetsStrParts[precisionIndex + 2].split(":")[1];
 

@@ -19,7 +19,6 @@ public class ModbusTCPDeviceWrapper extends DeviceWrapper
     public ModbusTCPDeviceWrapper(BModbusTcpDevice device) throws IOException {
         extractDeviceProperties(device);
         buildDeviceJSONNode();
-        printPointsListToCSV();
     }
 
     private void extractDeviceProperties(BModbusTcpDevice device) {
