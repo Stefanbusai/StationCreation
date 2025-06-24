@@ -77,6 +77,7 @@ public class PointToExport {
         BBacnetPointDescriptor bacnetPointDescriptor;
         BControlPoint sourcePoint = (BControlPoint) sourceOrd.resolve(Sys.getStation(), cx).getComponent();
         if (sourcePoint.getType().equals(BNumericPoint.TYPE)){
+
             if(writable){
                 bacnetPointDescriptor = new BBacnetAnalogOutputDescriptor();
                 bacnetPointDescriptor.setObjectId(BBacnetObjectIdentifier.make(1,address)); // 1 is the object type for AnalogOutput
