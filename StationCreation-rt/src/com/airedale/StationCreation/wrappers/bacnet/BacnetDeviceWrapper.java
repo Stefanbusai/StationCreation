@@ -5,6 +5,7 @@ import com.airedale.StationCreation.wrappers.DeviceWrapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import javax.baja.bacnet.BBacnetDevice;
+import javax.baja.bacnet.datatypes.BBacnetAddress;
 import javax.baja.naming.BOrd;
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -14,6 +15,7 @@ public class BacnetDeviceWrapper extends DeviceWrapper
     private BBacnetDevice device;
     private String deviceFullAddress;
     private String deviceMacAddress;
+    private String deviceIPAddress;
     private String deviceNetwork;
     private String deviceObjectId;
 
@@ -26,8 +28,24 @@ public class BacnetDeviceWrapper extends DeviceWrapper
     private void extractDeviceProperties(BBacnetDevice device) {
         this.device = device;
         this.deviceName = device.getName();
-        this.deviceFullAddress = device.getAddress().toString();
+//        this.deviceFullAddress = device.getAddress().toString();
         this.deviceMacAddress = device.getAddress().getMacAddress().toString();
+
+        byte[] macAddressOctetBytes = null;
+
+        if (device.getAddress() != null &&
+                device.getAddress().getMacAddress() != null &&
+                (macAddressOctetBytes = device.getAddress().getMacAddress().getBytes()) != null &&
+                macAddressOctetBytes.length >= 4) {
+            this.deviceIPAddress = String.format("%d.%d.%d.%d",
+                    macAddressOctetBytes[0] & 0xFF,
+                    macAddressOctetBytes[1] & 0xFF,
+                    macAddressOctetBytes[2] & 0xFF,
+                    macAddressOctetBytes[3] & 0xFF);
+        } else {
+            this.deviceIPAddress = "-";
+        }
+
         this.deviceNetwork = String.valueOf(device.getAddress().getNetworkNumber());
         this.deviceObjectId = device.getObjectId().toString();
         this.pointsCount = device.getPoints().getPropertyCount();
@@ -38,7 +56,7 @@ public class BacnetDeviceWrapper extends DeviceWrapper
     private void buildDeviceJSONNode() {
 
         jsonDeviceNode.put("deviceName", deviceName);
-        jsonDeviceNode.put("deviceFullAddress", deviceFullAddress);
+        jsonDeviceNode.put("deviceFullAddress", deviceIPAddress);
         jsonDeviceNode.put("deviceMacAddress",  deviceMacAddress);
         jsonDeviceNode.put("deviceNetwork",  deviceNetwork);
         jsonDeviceNode.put("objectID",  deviceObjectId );

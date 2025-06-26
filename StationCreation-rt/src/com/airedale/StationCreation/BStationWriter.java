@@ -709,15 +709,21 @@ public class BStationWriter extends BComponent
             String pointsListFile = deviceNode.get("pointsListFile").textValue();
             Integer networkNumber = deviceNode.get("deviceNetwork").intValue();
             String macAddressString = deviceNode.get("deviceMacAddress").textValue();
+
+
             String objectIDString = deviceNode.get("objectID").textValue();
             Integer deviceID = Integer.parseInt(objectIDString.split(":")[1]);
 
             BBacnetAddress bacnetAddress = new BBacnetAddress();
             bacnetAddress.setNetworkNumber(networkNumber);
-
-            byte[] macAddressOctet = BBacnetOctetString.stringToBytes(macAddressString);
-            bacnetAddress.setMacAddress(BBacnetOctetString.make(macAddressOctet));
-
+            try{
+                String iPAddressString = deviceNode.get("deviceFullAddress").textValue();
+                byte[] macAddressOctet = ipStringToBytes(iPAddressString);
+//            byte[] macAddressOctet = BBacnetOctetString.stringToBytes(macAddressString);
+                bacnetAddress.setMacAddress(BBacnetOctetString.make(macAddressOctet));
+            } catch (Exception e) {
+                logger.warning("Invalid IP address format for  " + deviceName);
+            }
             bacnetDevice.setAddress(bacnetAddress);
 
             // set the object ID for the device.
@@ -734,6 +740,27 @@ public class BStationWriter extends BComponent
             bacnetNetwork.add(deviceName, bacnetDeviceWithPoints, cx);
         }
         return bacnetNetwork;
+    }
+
+    private byte[] ipStringToBytes(String iPAddressString) {
+        //takes an input of form "192.168.1.1" and outputs a byte array of length 6 of form c0 a8 01 01 ba c0
+        String[] parts = iPAddressString.split("\\.");
+        if (parts.length != 4) {
+            return null;
+        }
+        byte[] bytes = new byte[6];
+        for (int i = 0; i < 4; i++) {
+            try {
+                bytes[i] = (byte) Integer.parseInt(parts[i]);
+            } catch (NumberFormatException e) {
+                logger.warning("Invalid IP address: " + iPAddressString);
+                return null;
+            }
+        }
+        // Set the last two bytes to 0xBA and 0xC0 as per the original code
+        bytes[4] = (byte) 0xBA;
+        bytes[5] = (byte) 0xC0;
+        return bytes;
     }
 
     private BBacnetDevice addPointsToBacnetDevice(BBacnetDevice bacnetDevice, String pointsListFile, Context cx)
