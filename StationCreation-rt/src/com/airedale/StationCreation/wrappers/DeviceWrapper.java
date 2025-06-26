@@ -42,7 +42,7 @@ public class DeviceWrapper
         CSVToPrint.append("HasAlarm").append(COMMA);        // 8
         CSVToPrint.append("AlarmName").append(COMMA);       // 9
         CSVToPrint.append("AlarmClass").append(COMMA);      // 10
-        CSVToPrint.append("AlarmClass").append(COMMA);      // 11
+        CSVToPrint.append("AlarmHyperlink").append(COMMA);      // 11
         CSVToPrint.append("HasHistory").append(COMMA);      // 12
         CSVToPrint.append("HistoryName").append(COMMA);     // 13
         CSVToPrint.append("HistoryInterval").append(COMMA); // 14
