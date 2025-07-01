@@ -48,7 +48,7 @@ public class DevicesHandler
                 {
                     String networkName = removeDoubleQuotes(networkJsonNode.get("networkName").toString());
 
-                    String devicesFileName = "StationRead/" + networkName + "_devices.csv";
+                    String devicesFileName = "StationRead/DeviceLists/" + networkName + "_devices.csv";
 
                     csvToPrint.append(networkName).append(COMMA);
                     csvToPrint.append(networkJsonNode.has("networkID") ? removeDoubleQuotes(networkJsonNode.get("networkID").toString()) : HYPHEN).append(COMMA);

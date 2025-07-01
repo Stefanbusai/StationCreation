@@ -23,6 +23,7 @@ import javax.baja.history.BCapacity;
 import javax.baja.history.BHistoryConfig;
 import javax.baja.history.ext.*;
 import javax.baja.naming.BOrd;
+import javax.baja.naming.SlotPath;
 import javax.baja.status.*;
 import javax.baja.sys.*;
 import javax.baja.tag.Tag;
@@ -65,7 +66,7 @@ public class PointCreator
             logger.warning("Null proxy point details not correct length: " + pointDetails.length + ", " + pointCsvLine);
             return;
         }
-        String pointName              = pointDetails[0];
+        String pointName              = SlotPath.escape(pointDetails[0]);
         String parentSlotPath         = pointDetails[1];
         String pointSlotPath          = parentSlotPath + "/" + pointName;
         String pointFacetsString      = pointDetails[2];

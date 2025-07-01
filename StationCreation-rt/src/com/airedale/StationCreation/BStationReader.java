@@ -20,6 +20,7 @@ import javax.baja.collection.TableCursor;
 import javax.baja.control.*;
 import javax.baja.driver.BDriverContainer;
 import javax.baja.naming.BOrd;
+import javax.baja.naming.SlotPath;
 import javax.baja.nre.annotations.NiagaraAction;
 import javax.baja.nre.annotations.NiagaraType;
 import javax.baja.status.BStatusBoolean;
@@ -168,6 +169,7 @@ public class BStationReader extends BComponent {
             String slot6 = "-";
             boolean pointHasOnlySimplyInputs = true;
             if (KIT_CONTROL_BOOLEAN_FOUR_INPUT_TYPES.contains(pointType)) {
+                // TODO : handle the case where the slots are renamed
                 slot1 = String.valueOf(((BStatusBoolean) kitControlComponent.get("inA")).getValue());
                 slot2 = String.valueOf(((BStatusBoolean) kitControlComponent.get("inB")).getValue());
                 slot3 = String.valueOf(((BStatusBoolean) kitControlComponent.get("inC")).getValue());
@@ -222,7 +224,7 @@ public class BStationReader extends BComponent {
                 }
             }
 
-            CSVToPrint.append(name).append(COMMA);         // 0
+            CSVToPrint.append(SlotPath.unescape(name)).append(COMMA);         // 0
             CSVToPrint.append(slotPath).append(COMMA);     // 1
             CSVToPrint.append(pointFacets).append(COMMA);       // 2
             CSVToPrint.append(pointType).append(COMMA);         // 3
@@ -363,7 +365,7 @@ public class BStationReader extends BComponent {
                     pointFallback = "N/A";
                     break;
             }
-            CSVToPrint.append(pointName).append(COMMA);         // 0
+            CSVToPrint.append(SlotPath.unescape(pointName)).append(COMMA);         // 0
             CSVToPrint.append(parentSlotPath).append(COMMA);     // 1
             CSVToPrint.append(pointFacets).append(COMMA);       // 2
             CSVToPrint.append(pointType).append(COMMA);         // 3

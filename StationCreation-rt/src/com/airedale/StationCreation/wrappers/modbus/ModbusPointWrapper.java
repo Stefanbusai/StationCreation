@@ -10,6 +10,7 @@ import javax.baja.control.BControlPoint;
 import javax.baja.control.BIWritablePoint;
 import javax.baja.history.ext.BHistoryExt;
 import javax.baja.history.ext.BIntervalHistoryExt;
+import javax.baja.naming.SlotPath;
 import javax.baja.sys.BComponent;
 import javax.baja.sys.BFacets;
 import javax.baja.sys.BInteger;
@@ -31,7 +32,7 @@ public class ModbusPointWrapper extends PointWrapper  {
 
     @Override
     protected void readPointProperties() throws IOException {
-        this.pointName = controlPoint.getName();
+        this.pointName = SlotPath.unescape(controlPoint.getName());
         this.pointAddress = proxyExt.getDataAddress().getAddress();
         this.pointType = String.valueOf(controlPoint.getType()).split(":")[1];
         this.type = controlPoint.getType();

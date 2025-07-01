@@ -14,6 +14,7 @@ import com.tridium.modbusAsync.BModbusAsyncDevice;
 import com.tridium.modbusAsync.BModbusAsyncNetwork;
 import com.tridium.modbusCore.BModbusDevice;
 import com.tridium.modbusCore.client.point.BModbusClientPointFolder;
+import com.tridium.modbusCore.datatypes.BFlexAddress;
 import com.tridium.modbusTcp.BModbusTcpDevice;
 import com.tridium.modbusTcp.BModbusTcpNetwork;
 
@@ -30,6 +31,7 @@ import javax.baja.control.BControlPoint;
 import javax.baja.driver.BDriverContainer;
 import javax.baja.driver.point.BPointDeviceExt;
 import javax.baja.naming.BOrd;
+import javax.baja.naming.SlotPath;
 import javax.baja.nre.annotations.NiagaraAction;
 import javax.baja.nre.annotations.NiagaraType;
 import javax.baja.serial.*;
@@ -508,7 +510,7 @@ public class BStationWriter extends BComponent
             // log the pointCsvLine being processed
             logger.info("Processing pointCsvLine: " + pointCsvLine);
             BControlPoint controlPoint = pointCreator.createProxyPointFromCSVLine(pointCsvLine, "modbus");
-            String pointName = pointCreator.getPointNameFromCSVLine(pointCsvLine);
+            String pointName = SlotPath.escape(pointCreator.getPointNameFromCSVLine(pointCsvLine));
             BModbusClientPointFolder bacnetPointFolder = createModbusSubFoldersIfTheyDoNotExist(pointCsvLine,
                     modbusTcpDevice, cx);
             if (controlPoint == null)
@@ -682,9 +684,12 @@ public class BStationWriter extends BComponent
         String networkName = bacnetNetowrkNode.get("networkName").textValue();
         String networkIDString = bacnetNetowrkNode.get("networkID").textValue();
         Integer networkID = Integer.parseInt(networkIDString.split(":")[1]);
-        Integer deviceCount = bacnetNetowrkNode.get("deviceCount").intValue();
+
+
 
         JsonNode devicesNode = bacnetNetowrkNode.get("devices");
+//        Integer deviceCount = bacnetNetowrkNode.get("deviceCount").intValue();
+        Integer deviceCount = devicesNode.size();
         List<JsonNode> devicesList = new ArrayList<>();
         Iterator<String> fieldNames = devicesNode.fieldNames();
         while (fieldNames.hasNext())
@@ -708,9 +713,6 @@ public class BStationWriter extends BComponent
             String deviceName = deviceNode.get("deviceName").textValue();
             String pointsListFile = deviceNode.get("pointsListFile").textValue();
             Integer networkNumber = deviceNode.get("deviceNetwork").intValue();
-            String macAddressString = deviceNode.get("deviceMacAddress").textValue();
-
-
             String objectIDString = deviceNode.get("objectID").textValue();
             Integer deviceID = Integer.parseInt(objectIDString.split(":")[1]);
 
@@ -720,7 +722,9 @@ public class BStationWriter extends BComponent
                 String iPAddressString = deviceNode.get("deviceFullAddress").textValue();
                 byte[] macAddressOctet = ipStringToBytes(iPAddressString);
 //            byte[] macAddressOctet = BBacnetOctetString.stringToBytes(macAddressString);
-                bacnetAddress.setMacAddress(BBacnetOctetString.make(macAddressOctet));
+                bacnetAddress.setMacAddress( BBacnetOctetString.make(macAddressOctet));
+                bacnetAddress.setNetworkNumber(networkNumber);
+                bacnetAddress.setAddressType(2);
             } catch (Exception e) {
                 logger.warning("Invalid IP address format for  " + deviceName);
             }
@@ -787,9 +791,8 @@ public class BStationWriter extends BComponent
             // log the pointCsvLine being processed
             logger.info("Processing pointCsvLine: " + pointCsvLine);
             BControlPoint controlPoint = pointCreator.createProxyPointFromCSVLine(pointCsvLine, "bacnet");
-            String pointName = pointCreator.getPointNameFromCSVLine(pointCsvLine);
-            BBacnetPointFolder bacnetPointFolder = createBacnetSubFoldersIfTheyDoNotExist(pointCsvLine, bacnetDevice,
-                    cx);
+            String pointName = SlotPath.escape(pointCreator.getPointNameFromCSVLine(pointCsvLine));
+            BBacnetPointFolder bacnetPointFolder = createBacnetSubFoldersIfTheyDoNotExist(pointCsvLine, bacnetDevice, cx);
             if (controlPoint == null)
             {
                 logger.warning(

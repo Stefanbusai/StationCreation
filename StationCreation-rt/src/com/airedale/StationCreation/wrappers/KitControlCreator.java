@@ -15,6 +15,7 @@ import com.tridium.kitControl.util.*;
 
 import javax.baja.control.BControlPoint;
 import javax.baja.naming.BOrd;
+import javax.baja.naming.SlotPath;
 import javax.baja.status.BStatus;
 import javax.baja.status.BStatusBoolean;
 import javax.baja.status.BStatusNumeric;
@@ -58,7 +59,7 @@ public class KitControlCreator extends PointCreator {
             logger.warning("Kit Control point details not correct length: " + pointDetails.length + ", " + kitControlPointString);
             return;
         }
-        String pointName = pointDetails[0];
+        String pointName = SlotPath.escape(pointDetails[0]);
         String parentSlotPathString = pointDetails[1];
         String pointSlotPath= parentSlotPathString + "/" + pointName;
         String pointFacets = pointDetails[2];
